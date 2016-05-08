@@ -1,0 +1,16 @@
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+Date birthday = sdf.parse("2016-05-08 00:00:00.000");
+Date now = new Date();
+long age = now.getTime() - birthday.getTime();
+long days = age / 86400000L;
+long a = age % 86400000L;
+long minutes = a / 60000L;
+long seconds = a % 60000L;
+boolean b = 86400000L * days + a == age;
+System.out.println("age = " + age);
+System.out.println("days = " + days);
+System.out.println("minutes = " + minutes);
+System.out.println("seconds = " + seconds);
+System.out.println("days = " + days);
+System.out.println("a = " + a);
+System.out.println("verified = " + b);

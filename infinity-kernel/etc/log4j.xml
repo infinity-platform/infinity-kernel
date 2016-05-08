@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="info" packages="com.iisigroup.infinity.kernel.nodeagent.logging">
+	<Appenders>
+		<!-- ================================================= -->
+		<!-- CONSOLE appender: for logging messages to console -->
+		<!-- ================================================= -->
+		<Console name="CONSOLE" target="SYSTEM_OUT">
+			<InfinityPatternLayout pattern="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n"
+				maxLineFieldLength="16"
+				maxUserFieldLength="6"
+				maxAddrFieldLength="15"
+				maxFlowFieldLength="60"
+				maxFcpuFieldLength="50"
+				lineFieldOverflowAllowd="true"
+				userFieldOverflowAllowd="false"
+				addrFieldOverflowAllowd="false"
+				flowFieldOverflowAllowd="false"
+				fcpuFieldOverflowAllowd="false"
+				flowFieldOverlapAllowd="true"
+				userFieldFiller="-"
+				addrFieldFiller="-"
+				lineFieldFiller="-"
+				flowFieldFiller="-"
+				fcpuFieldFiller="-"
+				fieldLeftBoundary="["
+				fieldRightBoundary="]"
+				fieldSeparator=" "
+				resolveUserFieldEnabled="false"
+				resolveAddrFieldEnabled="false"
+				resolveFlowFieldEnabled="false"
+				resolveFcpuFieldEnabled="false"
+				showNameField="false"
+				showHostField="false"
+				showLineField="true"
+				showUserField="false"
+				showAddrField="false"
+				showFlowField="false"
+				showFcpuField="false" />
+			<InfinityLogFilter 
+				serialNumber="1"
+				resolveLineFieldEnabled="true"
+				resolveUserFieldEnabled="false" 
+				resolveAddrFieldEnabled="false" 
+				resolveFlowFieldEnabled="false" 
+				resolveFcpuFieldEnabled="false" />
+		</Console>
+		<!-- ============================================================================================================== -->
+		<!-- FILE appender: for logging messages to file, using buffered random accessed file with rolling function enabled -->
+		<!-- ============================================================================================================== -->
+		<RollingRandomAccessFile name="FILE" fileName="../log/${sys:app.nodeAgentInstanceId}/nodeagent-${sys:app.nodeAgentInstanceId}.log" filePattern="../log/${sys:app.nodeAgentInstanceId}/$${date:yyyy-MM-dd}/nodeagent-996x-%d{yyyy-MM-dd}-%i.log.gz">
+			<InfinityPatternLayout pattern="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n" charset="UTF-8"
+				maxLineFieldLength="16"
+				maxUserFieldLength="6"
+				maxAddrFieldLength="15"
+				maxFlowFieldLength="60"
+				maxFcpuFieldLength="50"
+				lineFieldOverflowAllowd="true"
+				userFieldOverflowAllowd="false"
+				addrFieldOverflowAllowd="false"
+				flowFieldOverflowAllowd="false"
+				fcpuFieldOverflowAllowd="false"
+				flowFieldOverlapAllowd="true"
+				userFieldFiller="-"
+				addrFieldFiller="-"
+				lineFieldFiller="-"
+				flowFieldFiller="-"
+				fcpuFieldFiller="-"
+				fieldLeftBoundary="["
+				fieldRightBoundary="]"
+				fieldSeparator=" "
+				resolveUserFieldEnabled="false"
+				resolveAddrFieldEnabled="false"
+				resolveFlowFieldEnabled="false"
+				resolveFcpuFieldEnabled="false"
+				showNameField="false"
+				showHostField="false"
+				showLineField="true"
+				showUserField="false"
+				showAddrField="false"
+				showFlowField="false"
+				showFcpuField="false" />
+			<InfinityLogFilter
+				serialNumber="1"
+				resolveLineFieldEnabled="true"
+				resolveUserFieldEnabled="false"
+				resolveAddrFieldEnabled="false"
+				resolveFlowFieldEnabled="false"
+				resolveFcpuFieldEnabled="false" />
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="100MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="5"/>
+		</RollingRandomAccessFile>
+		<!-- ================================================================================================== -->
+		<!-- SOCKET appender: for logging messages to remote socket server, especially for Infinity Log Monitor -->
+		<!-- ================================================================================================== -->
+		<!--
+		<Socket name="SOCKET" host="localhost" port="4562">
+			<InfinityPatternLayout pattern="[%d %-40.40t] %-6p %-40.40c{1}|%m%n" charset="UTF-8"
+				maxLineFieldLength="12"
+				maxUserFieldLength="8"
+				maxAddrFieldLength="15"
+				maxFlowFieldLength="60"
+				maxFcpuFieldLength="50"
+				lineFieldOverflowAllowd="true"
+				userFieldOverflowAllowd="false"
+				addrFieldOverflowAllowd="false"
+				flowFieldOverflowAllowd="false"
+				fcpuFieldOverflowAllowd="false"
+				flowFieldOverlapAllowd="true"
+				userFieldFiller="-"
+				addrFieldFiller="-"
+				lineFieldFiller="-"
+				flowFieldFiller="-"
+				fcpuFieldFiller="-"
+				fieldLeftBoundary="["
+				fieldRightBoundary="]"
+				fieldSeparator="\u0000"
+				resolveUserFieldEnabled="true"
+				resolveAddrFieldEnabled="true"
+				resolveFlowFieldEnabled="true"
+				resolveFcpuFieldEnabled="true"
+				showNameField="true"
+				showHostField="true"
+				showLineField="true"
+				showUserField="true"
+				showAddrField="true"
+				showFlowField="true"
+				showFcpuField="true"
+				serialNumber="0" />
+			<InfinityLogFilter
+				serialNumber="1"
+				resolveLineFieldEnabled="true"
+				resolveUserFieldEnabled="false"
+				resolveAddrFieldEnabled="false"
+				resolveFlowFieldEnabled="false"
+				resolveFcpuFieldEnabled="false" />
+		</Socket>
+		-->
+		<!-- ================================================== -->
+		<!-- InfinityAsyncAppender to wrap the CONSOLE appender  -->
+		<!-- ================================================== -->
+		<InfinityAsyncAppender name="ASYNC_1">
+			<AppenderRef ref="CONSOLE" />
+			<InfinityLogFilter 
+				resolveLineFieldEnabled="false"
+				resolveUserFieldEnabled="false"
+				resolveAddrFieldEnabled="false"
+				resolveFlowFieldEnabled="false"
+				resolveFcpuFieldEnabled="false" />
+    	</InfinityAsyncAppender>
+		<!-- =============================================== -->
+		<!-- InfinityAsyncAppender to wrap the FILE appender  -->
+		<!-- =============================================== -->
+		<InfinityAsyncAppender name="ASYNC_2">
+			<AppenderRef ref="FILE"/>
+			<InfinityLogFilter 
+				resolveLineFieldEnabled="false"
+				resolveUserFieldEnabled="false"
+				resolveAddrFieldEnabled="false"
+				resolveFlowFieldEnabled="false"
+				resolveFcpuFieldEnabled="false" />
+    	</InfinityAsyncAppender>
+		<!-- ================================================= -->
+		<!-- InfinityAsyncAppender to wrap the SOCKET appender  -->
+		<!-- ================================================= -->
+    	<!--
+		<InfinityAsyncAppender name="ASYNC_3">
+			<AppenderRef ref="SOCKET"/>
+			<InfinityLogFilter
+				resolveLineFieldEnabled="false"
+				resolveUserFieldEnabled="true"
+				resolveAddrFieldEnabled="true"
+				resolveFlowFieldEnabled="true"
+				resolveFcpuFieldEnabled="true" />
+    	</InfinityAsyncAppender>
+    	-->
+	</Appenders>
+	<Loggers>
+		<Logger name="org.mortbay" level="WARN">
+		</Logger>
+		<Logger name="trace.cache.lock" level="INFO">
+		</Logger>
+		<Logger name="httpclient" level="ERROR">
+		</Logger>
+		<Logger name="org.apache.commons.httpclient" level="ERROR">
+		</Logger>
+		<Logger name="mx4j" level="TRACE">
+		</Logger>
+		<Logger name="org.hibernate" level="WARN">
+		</Logger>
+		<Logger name="org.springframework" level="WARN">
+		</Logger>
+		<Logger name="org.directwebremoting" level="INFO">
+		</Logger>
+		<Logger name="org" level="INFO">
+		</Logger>
+		<Logger name="com" level="TRACE">
+		</Logger>
+		<Logger name="com.iisigroup" level="TRACE">
+		</Logger>
+		<Logger name="com.iisigroup.infinity" level="TRACE">
+		</Logger>
+		<Logger name="com.iisigroup.infinity.kernel" level="TRACE">
+		</Logger>
+		<Logger name="org.jgroups" level="ERROR">
+		</Logger>
+		<Logger name="com.mchange.v2" level="ERROR">
+		</Logger>
+		<Logger name="com.iisigroup.infinity.modules.dynamicdatamodel" level="ERROR">
+		</Logger>
+		<Logger name="com.iisigroup.infinity.commons.formatter" level="ERROR">
+		</Logger>
+		<!-- 
+	    <Logger name="FLOWDEV_CAT" level="FATAL" additivity="false">
+	        <AppenderRef ref="FLOWDEV" />
+	    </Logger>
+	    <Logger name="DETAILSDEV_CAT" level="FATAL" additivity="false">
+	        <AppenderRef ref="DETAILSDEV" />
+	    </Logger>
+	    <Logger name="TIME-PROFILER" level="FATAL" additivity="false">
+	        <AppenderRef ref="TIME-PROFILER-FILE" />
+	    </Logger>
+	    <Logger name="MEMLOG" level="FATAL" additivity="false">
+	        <AppenderRef ref="MEMLOG-FILE" />
+	    </Logger>
+	    <Logger name="MNMLOGGER" level="DEBUG" additivity="false">
+	        <AppenderRef ref="MNMLOG-FILE" />
+	    </Logger>
+	    <Logger name="START-NODEAGENT" level="TRACE" additivity="false">
+	        <AppenderRef ref="START-NODEAGENT-FILE" />
+	    </Logger>
+	    <Logger name="STOP-NODEAGENT" level="TRACE" additivity="false">
+	        <AppenderRef ref="STOP-NODEAGENT-FILE" />
+	    </Logger>
+	    -->
+	    <!-- =========== -->
+		<!-- Root Logger -->
+		<!-- =========== -->
+		<Root level="TRACE">
+			<AppenderRef ref="ASYNC_1" />
+			<AppenderRef ref="ASYNC_2" />
+			<!--
+			<AppenderRef ref="ASYNC_3" />
+			-->
+		</Root>
+	</Loggers>
+</Configuration>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="infinity-kernel" default="module.compile">
+        
+        <!-- 1. Module Compile -->
+        <target name="module.compile">
+                <echo>Compiling [${ant.project.name}] project ...</echo>
+                <antcall target="module.compile.main" />
+                <antcall target="module.compile.test" />
+        </target>
+        
+        
+        
+        <!-- 2. Compile Main Source -->
+        <target name="module.compile.main">
+                <echo>Compiling [${ant.project.name}] main source ...</echo>
+                
+                <javac srcdir="${basedir}/../${TARGET_PROJECT}/${ant.project.name}/src/main/java" destdir="${MAIN_CLS}" fork="yes" includeJavaRuntime="yes" debug="true" encoding="UTF8">
+                        <!-- Extra Sources -->
+                        <src path="${basedir}/../${TARGET_PROJECT}/infinity-kernel-commons/src/main/java"/>
+                        <src path="${basedir}/../${TARGET_PROJECT}/infinity-kernel-core/src/main/java"/>
+                        <src path="${basedir}/../${TARGET_PROJECT}/infinity-kernel-facades/src/main/java"/>
+                        
+                        <compilerarg value="-XDignore.symbol.file"/>
+                        
+                        <bootclasspath>
+                                <fileset dir="${BOOTLIB}">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                                
+                                <fileset dir="${java.home}/lib">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                        </bootclasspath>
+                        
+                        <classpath>
+                                <!-- infinity-kernel ONLY, ServletContext duplicate error, using jetty's one first! -->
+                                <fileset dir="${LIB}/jetty">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                                
+                                <fileset dir="${LIB}">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                                
+                                <fileset dir="${BUILDLIB}">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                        </classpath>
+                </javac>
+                
+                <copy todir="${MAIN_CLS}">
+                        <fileset dir="${basedir}/../${TARGET_PROJECT}/${ant.project.name}/src/main/java">
+                                <exclude name="**/*.java" />
+                        </fileset>
+                </copy>
+        </target>
+        
+        
+        
+        <!-- 3. Compile Test Source -->
+        <target name="module.compile.test">
+                <echo>Compiling [${ant.project.name}] test source ...</echo>
+                
+                <javac srcdir="${basedir}/../${TARGET_PROJECT}/${ant.project.name}/src/test/java" destdir="${TEST_CLS}" debug="on" encoding="UTF8">
+                        <!-- Extra Sources -->
+                        <src path="${basedir}/../${TARGET_PROJECT}/infinity-kernel-commons/src/test/java"/>
+                        <src path="${basedir}/../${TARGET_PROJECT}/infinity-kernel-core/src/test/java"/>
+                        <src path="${basedir}/../${TARGET_PROJECT}/infinity-kernel-facades/src/test/java"/>
+                        
+                        <bootclasspath>
+                                <fileset dir="${BOOTLIB}">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                        </bootclasspath>
+                        
+                        <classpath>
+                                <fileset dir="${LIB}">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                                
+                                <fileset dir="${BUILDLIB}">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                                
+                                <fileset dir="${java.home}/lib">
+                                        <include name="**/*.jar" />
+                                </fileset>
+                        </classpath>
+                        
+                        <classpath location="${MAIN_CLS}" />
+                </javac>
+                
+                <copy todir="${TEST_CLS}" overwrite="false">
+                        <fileset dir="${basedir}/../${TARGET_PROJECT}/${ant.project.name}/src/test/java">
+                                <exclude name="**/*.java" />
+                        </fileset>
+                </copy>
+        </target>
+        
+</project>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<bean id="Profile" class="com.iisigroup.infinity.kernel.Profile">
+		<property name="domain" value="MNM" />
+		<property name="builder" value="com.iisigroup.infinity.kernel.MnmSystemBuilder" />
+		<property name="attributes">
+			<value>
+			<![CDATA[
+				app.runtimeMode=
+			]]>
+			</value>
+		</property>
+	</bean>
+
+	<bean id="MNM" class="com.iisigroup.infinity.kernel.MnmSystem" factory-method="createMnmSystem">
+		<property name="mainConnectorServerName" value="mnmRmiConnectorServer" />
+		<property name="connectorServers">
+			<map>
+			</map>
+		</property>
+		<property name="mbeans">
+			<map>
+			</map>
+		</property>
+	</bean>
+
+</beans>

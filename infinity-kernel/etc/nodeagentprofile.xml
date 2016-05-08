@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<bean id="Profile" class="com.iisigroup.infinity.kernel.Profile">
+		<property name="domain" value="MNM" />
+		<property name="builder" value="com.iisigroup.infinity.kernel.MnmSystemBuilder" />
+		<property name="attributes">
+			<value>
+			<![CDATA[
+				app.runtimeMode=@APP_RUNTIME_MODE@
+				mnm.persistentDataSource=nodeagentdb
+				mnm.persistentTable=persistentattributes
+				mnm.persistentNameColumn=attributename
+				mnm.persistentValueColumn=attributevalue
+				mnm.persistentTypeColumn=attributetype
+				mnm.persistentModifyByColumn=lastmodifiedby
+				mnm.persistentModifyTimeColumn=lastmodifiedtime
+			]]>
+			</value>
+		</property>
+	</bean>
+
+	<bean id="MNM" class="com.iisigroup.infinity.kernel.MnmSystem" factory-method="createMnmSystem">
+		<property name="mainConnectorServerName" value="mnmRmiConnectorServer" />
+		<property name="connectorServers">
+			<map>
+				<entry key="mnmRmiConnectorServer" value-ref="MnmRmiConnectorServer"/>
+				<entry key="mnmHtmlConnectorServer" value-ref="MnmHtmlConnectorServer"/>
+				<entry key="mnmDbConnectorServer" value-ref="MnmDbConnectorServer"/>
+			</map>
+		</property>
+		<property name="mbeans">
+			<map>
+				<entry key="nodeAgent" value-ref="NodeAgent"/>
+			</map>
+		</property>
+		<property name="log4jHierarchy" ref="Log4jHierarchy" />
+	</bean>
+
+	<bean id="MnmRmiConnectorServer" class="com.iisigroup.infinity.kernel.connectorserver.rmi.MnmRmiConnectorServer" factory-method="createConnectorServer">
+		<property name="autoStart" value="true" />
+		<property name="port" value="@NODEAGENT_PORT_PREFIX@1" />
+		<property name="autoPortShift" value="@AUTO_PORT_SHIFT@" />
+		<property name="autoPortShiftTimes" value="@AUTO_PORT_SHIFT_TIMES@" />
+		<property name="createRegistry" value="true" />
+		<property name="forceBindingDefaultAddressOnly" value="@FORCE_BINDING_DEFAULT_ADDRESS_ONLY@" />
+		<property name="bindAddress" value="@BINDING_ADDRESS@" />
+	</bean>
+
+	<bean id="MnmHtmlConnectorServer" class="com.iisigroup.infinity.kernel.connectorserver.html.MnmHtmlConnectorServer" factory-method="createConnectorServer">
+		<property name="autoStart" value="true" />
+		<property name="port" value="@NODEAGENT_PORT_PREFIX@2" />
+		<property name="autoPortShift" value="@AUTO_PORT_SHIFT@" />
+		<property name="autoPortShiftTimes" value="@AUTO_PORT_SHIFT_TIMES@" />
+		<property name="provider" value="MX4J" />
+		<property name="forceBindingDefaultAddressOnly" value="@FORCE_BINDING_DEFAULT_ADDRESS_ONLY@" />
+		<property name="bindAddress" value="@BINDING_ADDRESS@" />
+		<property name="authorizedUsers">
+			<map>
+				<entry key="mnmadmin" value="mnmadmin"/>
+				<entry key="mnmuser" value="mnmuser"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="MnmDbConnectorServer" class="com.iisigroup.infinity.kernel.connectorserver.db.MnmDbConnectorServer" factory-method="createConnectorServer">
+		<property name="autoStart" value="true" />
+		<property name="port" value="@NODEAGENT_PORT_PREFIX@3" />
+		<property name="autoPortShift" value="@AUTO_PORT_SHIFT@" />
+		<property name="autoPortShiftTimes" value="@AUTO_PORT_SHIFT_TIMES@" />
+		<property name="forceBindingDefaultAddressOnly" value="@FORCE_BINDING_DEFAULT_ADDRESS_ONLY@" />
+		<property name="bindAddress" value="@BINDING_ADDRESS@" />
+		<property name="server" ref="NodeAgentDbServer" />
+		<property name="startupArgs">
+			<props>
+				<prop key="tcp" />
+				<prop key="tcpAllowOthers" />
+				<prop key="tcpDaemon" />
+			</props>
+		</property>
+	</bean>
+
+	
+	<bean id="Log4jHierarchy" class="com.iisigroup.infinity.kernel.logger.log4j.MnmHierarchyDynamicMBean">
+	</bean>
+	
+	<bean id="NodeAgentDbServer" class="org.h2.tools.Server" />
+
+	<bean id="NodeAgent" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgent">
+		<property name="autoStart" value="true" />
+		<property name="webContainer" ref="NodeAgentWebContainer" />
+		<property name="scriptFolder" value="scripts" />
+		<property name="modulesDataDir" value="modulesData" />
+		<property name="maxWebContainerThreads" value="1000" />
+		<property name="minWebContainerThreads" value="10" />
+		<!-- 
+		<property name="proxyServletModule" value="MNM:type=com.iisigroup.infinity.modules.proxyservlet.ProxyServlet,name=proxyServlet" />
+		<property name="autoCreateSessionId" value="true" />
+		-->
+		<property name="dumpRequestAndResponseHeader" value="true" />
+		<property name="cookiePolicy" value="ignoreCookies" />
+		<property name="NodeAgentDataSources">
+			<map>
+				<entry key="nodeagentdb">
+					<bean class="com.mchange.v2.c3p0.ComboPooledDataSource">
+						<property name="driverClass" value="org.h2.Driver" />
+						<property name="jdbcUrl" value="jdbc:h2:tcp://localhost:@NODEAGENT_PORT_PREFIX@3/nodeagentdb-@NODEAGENT_PORT_PREFIX@x;ALIAS_COLUMN_NAME=true" />
+						<property name="user" value="mnmadmin" />
+						<property name="password" value="mnmadmin" />
+						<property name="acquireIncrement" value="3" />
+						<property name="initialPoolSize" value="3" />
+						<property name="maxPoolSize" value="100" />
+						<property name="minPoolSize" value="3" />
+						<property name="maxConnectionAge" value="0" />
+						<property name="maxIdleTime" value="0" />
+						<property name="maxIdleTimeExcessConnections" value="0" />
+						<property name="maxStatements" value="0" />
+						<property name="maxStatementsPerConnection" value="0" />
+					</bean>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+	<bean id="NodeAgentWebContainer" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentJettyServer">
+		<property name="port" value="@SERVICE_PORT@" />
+		<property name="autoPortShift" value="@AUTO_PORT_SHIFT@" />
+		<property name="autoPortShiftTimes" value="@AUTO_PORT_SHIFT_TIMES@" />
+		<property name="forceBindingDefaultAddressOnly" value="@FORCE_BINDING_DEFAULT_ADDRESS_ONLY@" />
+		<property name="bindAddress" value="@BINDING_ADDRESS@" />
+		<property name="forwarded" value="true" />
+		<property name="nodeAgentServletFilter" ref="NodeAgentServletFilter" />
+		<property name="nodeAgentWebContainerListener" ref="NodeAgentWebContainerListener" />
+		<property name="maxInactiveInterval" value="28800" />
+		<property name="sslEnabled" value="@mnmsystem.nodeagent.sslEnabled@" />
+		<property name="keyStore" value="@mnmsystem.nodeagent.keyStore@" />
+		<property name="password" value="@mnmsystem.nodeagent.password@" />
+		<property name="keyPassword" value="@mnmsystem.nodeagent.keyPassword@" />
+		<property name="trustStore" value="@mnmsystem.nodeagent.trustStore@" />
+		<property name="trustPassword" value="@mnmsystem.nodeagent.trustPassword@" />
+        <property name="alternativeConnectors">
+            <set>
+                <value>http,@mnmsystem.nodeagent.httpPort@,@mnmsystem.nodeagent.httpAddress@</value>
+                <value>https,@mnmsystem.nodeagent.httpsPort@,@mnmsystem.nodeagent.httpsAddress@</value>
+            </set>
+        </property>
+		<property name="handlers">
+			<map>
+				<entry key="contextHandlerCollection" value-ref="ContextHandlerCollection"/>
+                <entry key="contextHandlerCollectionForCommonModules" value-ref="ContextHandlerCollectionForCommonModules"/>
+			</map>
+		</property>
+		<property name="deployers">
+			<map>
+				<entry key="contextDeployer" value-ref="ContextDeployer"/>
+				<entry key="contextDeployerForCommonModules" value-ref="ContextDeployerForCommonModules"/>
+			</map>
+		</property>
+		<property name="contexts">
+			<map>
+				<entry key="mnmSystem">
+					<map>
+						<entry key="context" value="/mnmapp"/>
+						<entry key="servlets">
+							<map>
+								<entry key="nodeAgentServlet">
+									<map>
+										<entry key="urlPattern" value="/mnm/*"/>
+										<entry key="servlet" value-ref="NodeAgentServlet"/>
+									</map>
+								</entry>
+								<entry key="dbConsole">
+									<map>
+										<entry key="urlPattern" value="/dbconsole/*"/>
+										<entry key="servlet" value-ref="DbConsole"/>
+										<entry key="initParams">
+											<map>
+												<entry key="webAllowOthers" value=""/>
+											</map>
+										</entry>
+									</map>
+								</entry>
+							</map>
+						</entry>
+					</map>
+				</entry>
+				<entry key="crossdomain">
+					<map>
+						<entry key="context" value="/"/>
+						<entry key="servlets">
+							<map>
+								<entry key="crossDomainSettings">
+									<map>
+										<entry key="urlPattern" value="/crossdomain.xml"/>
+										<entry key="servlet">
+											<bean id="NodeAgentCrossDomainSettings" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentCrossDomainSettings">
+											</bean>
+										</entry>
+									</map>
+								</entry>
+								<entry key="rootServlet">
+									<map>
+										<entry key="urlPattern" value="/"/>
+										<entry key="servlet">
+											<bean id="NodeAgentRootServlet" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentRootServlet">
+											</bean>
+										</entry>
+									</map>
+								</entry>
+							</map>
+						</entry>
+					</map>
+				</entry>
+			</map>
+		</property>
+		<property name="defaultContentTypes">
+			<value>
+				<![CDATA[
+				ez=application/andrew-inset
+				hqx=application/mac-binhex40
+				cpt=application/mac-compactpro
+				mathml=application/mathml+xml
+				doc=application/msword
+				bin=application/octet-stream
+				dms=application/octet-stream
+				lha=application/octet-stream
+				lzh=application/octet-stream
+				exe=application/octet-stream
+				class=application/octet-stream
+				so=application/octet-stream
+				dll=application/octet-stream
+				oda=application/oda
+				ogg=application/ogg
+				pdf=application/pdf
+				ai=application/postscript
+				eps=application/postscript
+				ps=application/postscript
+				rdf=application/rdf+xml
+				smi=application/smil
+				smil=application/smil
+				gram=application/srgs
+				grxml=application/srgs+xml
+				mif=application/vnd.mif
+				xul=application/vnd.mozilla.xul+xml
+				xls=application/vnd.ms-excel
+				ppt=application/vnd.ms-powerpoint
+				wbxml=application/vnd.wap.wbxml
+				wmlc=application/vnd.wap.wmlc
+				wmlc=application/vnd.wap.wmlc
+				wmlsc=application/vnd.wap.wmlscriptc
+				wmlsc=application/vnd.wap.wmlscriptc
+				vxml=application/voicexml+xml
+				bcpio=application/x-bcpio
+				vcd=application/x-cdlink
+				pgn=application/x-chess-pgn
+				cpio=application/x-cpio
+				csh=application/x-csh
+				dcr=application/x-director
+				dir=application/x-director
+				dxr=application/x-director
+				dvi=application/x-dvi
+				spl=application/x-futuresplash
+				gtar=application/x-gtar
+				hdf=application/x-hdf
+				php=application/x-httpd-php
+				php4=application/x-httpd-php
+				php3=application/x-httpd-php
+				phtml=application/x-httpd-php
+				phps=application/x-httpd-php-source
+				js=application/x-javascript
+				skp=application/x-koan
+				skd=application/x-koan
+				skt=application/x-koan
+				skm=application/x-koan
+				latex=application/x-latex
+				nc=application/x-netcdf
+				cdf=application/x-netcdf
+				crl=application/x-pkcs7-crl
+				sh=application/x-sh
+				shar=application/x-shar
+				swf=application/x-shockwave-flash
+				sit=application/x-stuffit
+				sv4cpio=application/x-sv4cpio
+				sv4crc=application/x-sv4crc
+				tgz=application/x-tar
+				tar=application/x-tar
+				tcl=application/x-tcl
+				tex=application/x-tex
+				texinfo=application/x-texinfo
+				texi=application/x-texinfo
+				t=application/x-troff
+				tr=application/x-troff
+				roff=application/x-troff
+				man=application/x-troff-man
+				me=application/x-troff-me
+				ms=application/x-troff-ms
+				ustar=application/x-ustar
+				src=application/x-wais-source
+				crt=application/x-x509-ca-cert
+				xhtml=application/xhtml+xml
+				xht=application/xhtml+xml
+				xml=application/xml
+				xsl=application/xml
+				dtd=application/xml-dtd
+				xslt=application/xslt+xml
+				zip=application/zip
+				au=audio/basic
+				snd=audio/basic
+				mid=audio/midi
+				midi=audio/midi
+				kar=audio/midi
+				mpga=audio/mpeg
+				mp2=audio/mpeg
+				mp3=audio/mpeg
+				aif=audio/x-aiff
+				aiff=audio/x-aiff
+				aifc=audio/x-aiff
+				m3u=audio/x-mpegurl
+				ram=audio/x-pn-realaudio
+				rm=audio/x-pn-realaudio
+				rpm=audio/x-pn-realaudio-plugin
+				ra=audio/x-realaudio
+				wav=audio/x-wav
+				pdb=chemical/x-pdb
+				xyz=chemical/x-xyz
+				bmp=image/bmp
+				cgm=image/cgm
+				gif=image/gif
+				ief=image/ief
+				jpeg=image/jpeg
+				jpg=image/jpeg
+				jpe=image/jpeg
+				png=image/png
+				svg=image/svg+xml
+				tiff=image/tiff
+				tif=image/tiff
+				djvu=image/vnd.djvu
+				djv=image/vnd.djvu
+				wbmp=image/vnd.wap.wbmp
+				wbmp=image/vnd.wap.wbmp
+				ras=image/x-cmu-raster
+				ico=image/x-icon
+				pnm=image/x-portable-anymap
+				pbm=image/x-portable-bitmap
+				pgm=image/x-portable-graymap
+				ppm=image/x-portable-pixmap
+				rgb=image/x-rgb
+				xbm=image/x-xbitmap
+				xpm=image/x-xpixmap
+				xwd=image/x-xwindowdump
+				igs=image/vnd.wap.wbmp
+				iges=image/vnd.wap.wbmp
+				msh=model/mesh
+				mesh=model/mesh
+				silo=model/mesh
+				wrl=model/vrml
+				vrml=model/vrml
+				ics=text/calendar
+				ifb=text/calendar
+				css=text/css
+				shtml=text/html
+				html=text/html
+				htm=text/html
+				asc=text/plain
+				txt=text/plain
+				rtx=text/richtext
+				rtf=text/rtf
+				sgml=text/sgml
+				sgm=text/sgml
+				tsv=text/tab-separated-values
+				wml=text/vnd.wap.wml
+				wml=text/vnd.wap.wml
+				wmls=text/vnd.wap.wmlscript
+				wmls=text/vnd.wap.wmlscript
+				etx=text/x-setext
+				mpeg=video/mpeg
+				mpg=video/mpeg
+				mpe=video/mpeg
+				qt=video/quicktime
+				mov=video/quicktime
+				mxu=video/vnd.mpegurl
+				avi=video/x-msvideo
+				movie=video/x-sgi-movie
+				ice=x-conference/x-cooltalk
+				js=text/javascript
+				]]>			
+			</value>
+		</property>
+	</bean>
+
+	<bean id="ContextHandlerCollection" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentContextHandlerCollection" />
+
+    <bean id="ContextHandlerCollectionForCommonModules" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentContextHandlerCollection" />
+
+	<!--
+	<bean id="DefaultHandler" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentDefaultHandler" />
+	-->
+
+	<!--
+	<bean id="WebAppDeployer" class="org.mortbay.jetty.deployer.WebAppDeployer">
+		<property name="contexts" ref="ContextHandlerCollection" />
+		<property name="webAppDir" value="modules" />
+		<property name="parentLoaderPriority" value="true" />
+		<property name="extract" value="true" />
+		<property name="allowDuplicates" value="true" />
+		<property name="defaultsDescriptor" value="com/iisigroup/infinity/kernel/nodeagent/mnmdefault.xml" />
+	</bean>
+	-->
+	
+	<bean id="ContextDeployer" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentJettyContextDeployer">
+		<property name="contexts" ref="ContextHandlerCollection" />
+		<property name="contextDir" value="modules" />
+		<property name="scanInterval" value="10" />
+		<property name="initModuleAsynchronously" value="false" />
+	</bean>
+
+	<bean id="ContextDeployerForCommonModules" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentJettyContextDeployer">
+		<property name="contexts" ref="ContextHandlerCollectionForCommonModules" />
+		<property name="contextDir" value="../modules" />
+		<property name="scanInterval" value="10" />
+		<property name="initModuleAsynchronously" value="false" />
+	</bean>
+
+	<bean id="NodeAgentServlet" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentServlet">
+		<!--
+		<property name="defaultServletModuleObjectName" value="MNM:type=com.iisigroup.infinity.modules.proxyservlet.ProxyServlet,name=proxyServlet" />
+		-->
+	</bean>
+	
+	<bean id="NodeAgentServletFilter" class="com.iisigroup.infinity.kernel.nodeagent.servletfilter.NodeAgentServletFilter">
+		<property name="loggingMode" value="SIMPLE" />
+	</bean>
+	
+	<bean id="NodeAgentWebContainerListener" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentWebContainerListener">
+	</bean>
+
+	<bean id="DbConsole" class="org.h2.server.web.WebServlet">
+	</bean>
+
+</beans>

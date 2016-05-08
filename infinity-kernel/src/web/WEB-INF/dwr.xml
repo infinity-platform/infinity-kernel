@@ -1,0 +1,8 @@
+<dwr>
+    <allow>
+        <create creator="new" javascript="UploadMonitor">
+            <param name="class" value="com.iisigroup.infinity.kernel.nodeagent.deployer.UploadMonitor"/>
+        </create>
+        <convert converter="bean" match="com.iisigroup.infinity.kernel.nodeagent.deployer.UploadInfo"/>
+    </allow>
+</dwr>

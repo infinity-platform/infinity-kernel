@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration>
+
+	<!--
+		<appender name="SOCKETMONITOR"
+		class="com.iisigroup.infinity.commons.MnmSocketAppender"> <param
+		name="RemoteHost" value="127.0.0.1" /> <param name="Port" value="4560"
+		/> <param name="LocationInfo" value="true" /> <param
+		name="ApplicationId" value="${serverInstanceId}" /> <param
+		name="Threshold" value="DEBUG" /> <layout
+		class="org.apache.log4j.PatternLayout"> <param
+		name="ConversionPattern" value="%d %-5p %-30.30c{1} %m%n" /> </layout>
+		</appender>
+	-->
+	
+	<appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="com.iisigroup.infinity.kernel.logger.log4j.SerialPatternLayout">
+			<param name="ConversionPattern" value="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="FILE" class="org.apache.log4j.DailyMaxRollingFileAppender">
+		<param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/nodeagent-@NODEAGENT_PORT_PREFIX@x.log" />
+		<param name="Append" value="true" />
+		<param name="datePattern" value="'.'yyyy-MM-dd" />
+		<param name="MaxBackupIndex" value="10" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="com.iisigroup.infinity.kernel.logger.log4j.SerialPatternLayout">
+			<param name="ConversionPattern" value="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="START-NODEAGENT-FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/startNodeagent-@NODEAGENT_PORT_PREFIX@x.log" />
+		<param name="Append" value="true" />
+		<param name="MaxFileSize" value="20MB" />
+		<param name="MaxBackupIndex" value="10" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="com.iisigroup.infinity.kernel.logger.log4j.SerialPatternLayout">
+			<param name="ConversionPattern" value="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="STOP-NODEAGENT-FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/stopNodeagent-@NODEAGENT_PORT_PREFIX@x.log" />
+		<param name="Append" value="true" />
+		<param name="MaxFileSize" value="20MB" />
+		<param name="MaxBackupIndex" value="10" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="com.iisigroup.infinity.kernel.logger.log4j.SerialPatternLayout">
+			<param name="ConversionPattern" value="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="TIME-PROFILER-FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/time-profiler-@NODEAGENT_PORT_PREFIX@x.log" />
+		<param name="Append" value="true" />
+		<param name="MaxFileSize" value="20MB" />
+		<param name="MaxBackupIndex" value="10" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="com.iisigroup.infinity.kernel.logger.log4j.SerialPatternLayout">
+			<param name="ConversionPattern" value="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="MEMLOG-FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/memlog-@NODEAGENT_PORT_PREFIX@x.log" />
+		<param name="Append" value="true" />
+		<param name="MaxFileSize" value="10MB" />
+		<param name="MaxBackupIndex" value="10" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="com.iisigroup.infinity.kernel.logger.log4j.SerialPatternLayout">
+			<param name="ConversionPattern" value="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="MNMLOG-FILE" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/mnmlog-@NODEAGENT_PORT_PREFIX@x.log" />
+		<param name="Append" value="true" />
+		<param name="MaxFileSize" value="10MB" />
+		<param name="MaxBackupIndex" value="10" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="com.iisigroup.infinity.kernel.logger.log4j.SerialPatternLayout">
+			<param name="ConversionPattern" value="%d|%-5p|%-50.50t|%-30.30c{1}|%-50.50l|  %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="XMLFILE" class="org.apache.log4j.FileAppender">
+		<param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/nodeagent-@NODEAGENT_PORT_PREFIX@x.log.xml" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="org.apache.log4j.xml.XMLLayout">
+			<param name="LocationInfo" value="true" />
+		</layout>
+	</appender>
+
+    <appender name="FLOWDEV" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/nodeagent-@NODEAGENT_PORT_PREFIX@x_flow.log" />
+        <param name="Append" value="true" />
+        <param name="MaxFileSize" value="10MB" />
+        <param name="MaxBackupIndex" value="10" />
+        <param name="Threshold" value="TRACE" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n" />
+        </layout>
+    </appender>
+    
+    <appender name="DETAILSDEV" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="@LOG_DIR@/${app.nodeAgentInstanceId}/nodeagent-@NODEAGENT_PORT_PREFIX@x_flow_details.log" />
+        <param name="Append" value="true" />
+        <param name="MaxFileSize" value="10MB" />
+        <param name="MaxBackupIndex" value="10" />
+        <param name="Threshold" value="TRACE" />
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%m%n" />
+        </layout>
+    </appender>
+
+	<appender name="NTEVENTLOG" class="org.apache.log4j.nt.NTEventLogAppender">
+		<param name="Source" value="Exercise01" />
+		<param name="Threshold" value="WARN" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %-5p %-30.30c{1}  %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="CHAINSAW" class="org.apache.log4j.net.SocketAppender">
+		<param name="RemoteHost" value="127.0.0.1" />
+		<param name="Port" value="4445" />
+		<param name="LocationInfo" value="true" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %-5p %-30.30c{1}  %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="LF5" class="org.apache.log4j.lf5.LF5Appender">
+		<param name="Threshold" value="DEBUG" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %-5p %-30.30c{1}  %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="TELNET" class="org.apache.log4j.net.TelnetAppender">
+		<param name="Port" value="15875" />
+		<param name="Threshold" value="DEBUG" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d %-5p %-30.30c{1}  %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="ASYNC" class="org.apache.log4j.AsyncAppender">
+		<param name="BufferSize" value="1024" />
+		<appender-ref ref="FILE" />
+	</appender>
+	
+	<category name="org.mortbay">
+		<priority value="WARN" />
+	</category>
+
+	<category name="trace.cache.lock">
+		<priority value="INFO" />
+	</category>
+
+	<category name="httpclient">
+		<priority value="ERROR" />
+	</category>
+	
+	<category name="org.apache.commons.httpclient">
+		<priority value="ERROR" />
+	</category>
+
+	<category name="mx4j">
+		<priority value="TRACE" />
+	</category>
+
+	<category name="org.hibernate">
+		<priority value="WARN" />
+	</category>
+
+	<category name="org.springframework">
+		<priority value="WARN" />
+	</category>
+
+	<category name="org.directwebremoting">
+		<priority value="INFO" />
+	</category>
+
+	<category name="org">
+		<priority value="INFO" />
+	</category>
+	
+	<category name="com">
+		<priority value="TRACE" />
+	</category>
+
+	<category name="com.iisigroup">
+		<priority value="TRACE" />
+	</category>
+
+	<category name="com.iisigroup.infinity">
+		<priority value="TRACE" />
+	</category>
+
+	<category name="com.iisigroup.infinity.kernel">
+		<priority value="TRACE" />
+	</category>
+
+	<category name="org.jgroups">
+		<priority value="ERROR" />
+	</category>
+
+	<category name="com.mchange.v2">
+		<priority value="ERROR" />
+	</category>
+
+	<category name="com.iisigroup.infinity.modules.dynamicdatamodel">
+		<priority value="ERROR" />
+	</category>
+	
+	<category name="com.iisigroup.infinity.commons.formatter">
+		<priority value="ERROR" />
+	</category>
+
+    <category name="FLOWDEV_CAT" additivity="false">
+        <priority value="FATAL" />
+        <appender-ref ref="FLOWDEV" />
+    </category>
+    
+    <category name="DETAILSDEV_CAT" additivity="false">
+        <priority value="FATAL" />
+        <appender-ref ref="DETAILSDEV" />
+    </category>
+    
+    <category name="TIME-PROFILER" additivity="false">
+        <priority value="FATAL" />
+        <appender-ref ref="TIME-PROFILER-FILE" />
+    </category>
+    
+    <category name="MEMLOG" additivity="false">
+        <priority value="FATAL" />
+        <appender-ref ref="MEMLOG-FILE" />
+    </category>
+
+    <category name="MNMLOGGER" additivity="false">
+        <priority value="DEBUG" />
+        <appender-ref ref="MNMLOG-FILE" />
+    </category>
+    
+    <category name="START-NODEAGENT" additivity="false">
+        <priority value="TRACE" />
+        <appender-ref ref="START-NODEAGENT-FILE" />
+    </category>
+    
+    <category name="STOP-NODEAGENT" additivity="false">
+        <priority value="TRACE" />
+        <appender-ref ref="STOP-NODEAGENT-FILE" />
+    </category>
+
+	<root>
+		<priority value="TRACE" />
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="ASYNC" />
+	</root>
+
+</log4j:configuration>

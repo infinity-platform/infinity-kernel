@@ -148,7 +148,7 @@ In Eclipse, open the **"Preferences..."** window, expends **"Maven"**,  and sele
 
 ![Alt text](./1488551231259.png)
 
-Click the **"Add Remote Catalog..." button on the right.
+Click the **"Add Remote Catalog..."** button on the right.
 
 ![Alt text](./1488551329346.png)
 
@@ -177,6 +177,9 @@ In this page, you have to enter the following information of your new module,
 ***Artifact Id*** is the name of artifact, usually you can fill with the **Project Name** of the new module. By following conventions, use only lower case characters and digits, and use underline as separators.
 
 ***Version*** is the initial version number of the new module, usually 1.0.0.0 is just fine. By following conventions, use only digits and use dot as separators, best have four parts of the version number.
+
+***Package*** is the package name of the new module, usually it is the same with **"Group Id"**.
+> **One thing to remind**: when typing in **"Artifact Id"** field, the **"Package"** will also changed at the same time. Please do not forget to modify the value back to be the same with **"Group Id"**.
 
 ***moduleName*** is the name of the new module. Please follow **UpperCamelCase**  convention.
 

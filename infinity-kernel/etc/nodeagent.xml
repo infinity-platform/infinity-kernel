@@ -1,0 +1,95 @@
+<?xml version="1.0"  encoding="ISO-8859-1"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+
+<!-- ==================================================================
+Configure and deploy the test web application in $(jetty.home)/webapps/test
+
+Note. If this file did not exist or used a context path other that /test
+then the default configuration of jetty.xml would discover the test
+webapplication with a WebAppDeployer.  By specifying a context in this
+directory, additional configuration may be specified and hot deployments 
+detected.
+===================================================================== -->
+
+<Configure class="com.iisigroup.infinity.kernel.nodeagent.module.MnmModuleContextConfiguration">
+
+<Set name="ConfigurationClasses">
+    <Array id="plusConfig" type="java.lang.String">
+      <Item>org.mortbay.jetty.webapp.WebInfConfiguration</Item>
+      <Item>org.mortbay.jetty.plus.webapp.EnvConfiguration</Item>
+      <Item>org.mortbay.jetty.plus.webapp.Configuration</Item>
+      <Item>org.mortbay.jetty.webapp.JettyWebXmlConfiguration</Item>
+      <Item>org.mortbay.jetty.webapp.TagLibConfiguration</Item>
+    </Array>
+  </Set>
+  
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Required minimal context configuration :                        -->
+  <!--  + contextPath                                                  -->
+  <!--  + war OR resourceBase                                          -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <Set name="moduleId">nodeagent</Set>
+  <Set name="contextPath">/nodeagent</Set>
+  <Set name="war">modules/nodeagent</Set>
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Startup order, default is 100000, nodeagent is 10000            -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <Set name="startupOrder">10000</Set>
+
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <!-- Optional context configuration                                  -->
+  <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+  <Set name="extractWAR">false</Set>
+  <Set name="copyWebDir">true</Set>
+  <Set name="distributable">true</Set>
+  <Set name="defaultsDescriptor">com/iisigroup/infinity/kernel/nodeagent/mnmdefault.xml</Set>
+
+  <!-- virtual hosts
+  <Set name="virtualHosts">
+    <Array type="String">
+      <Item>www.myVirtualDomain.com</Item>
+      <Item>localhost</Item>
+      <Item>127.0.0.1</Item>
+    </Array>
+  </Set>
+  -->
+
+  <!-- disable cookies 
+  <Get name="sessionHandler">
+     <Get name="sessionManager">
+        <Set name="usingCookies" type="boolean">false</Set>
+     </Get>
+  </Get>
+  -->
+
+  <!--
+  <Get name="securityHandler">
+    <Set name="userRealm">
+      <New class="org.mortbay.jetty.security.HashUserRealm">
+	    <Set name="name">Test Realm</Set>
+	    <Set name="config"><SystemProperty name="jetty.home" default="."/>/etc/realm.properties</Set>
+      </New>
+    </Set>
+    <Set name="checkWelcomeFiles">true</Set>
+  </Get>
+  -->
+
+  <!--
+  <New id="JNDI_DATASOURCE_NODEAGENTDB" class="com.iisigroup.infinity.kernel.nodeagent.NodeAgentResource">
+    <Arg>jdbc/nodeagentdb</Arg>
+    <Arg>
+      <New class="com.jolbox.bonecp.BoneCPDataSource">
+        <Set name="driverClass">org.h2.Driver</Set>
+        <Set name="jdbcUrl">jdbc:h2:tcp://localhost:@NODEAGENT_PORT_PREFIX@3/nodeagentdb-@NODEAGENT_PORT_PREFIX@x</Set>
+        <Set name="username">mnmadmin</Set>
+        <Set name="password">mnmadmin</Set>
+        <Set name="minConnectionsPerPartition">5</Set>
+        <Set name="maxConnectionsPerPartition">50</Set>
+        <Set name="acquireIncrement">5</Set>
+        <Set name="idleConnectionTestPeriod">30</Set>
+      </New>
+    </Arg>
+  </New>
+  -->
+
+</Configure>

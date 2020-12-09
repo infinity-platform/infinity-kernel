@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# An example hook script to check the commit log message.
+# Called by "git commit" with one argument, the name of the file
+# that has the commit message.  The hook should exit with non-zero
+# status after issuing an appropriate message if it wants to stop the
+# commit.  The hook is allowed to edit the commit message file.
+#
+# To enable this hook, rename this file to "commit-msg".
+
+# Uncomment the below to add a Signed-off-by line to the message.
+# Doing this in a hook is a bad idea in general, but the prepare-commit-msg
+# hook is more suited to it.
+#
+# SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+# grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
+
+# This example catches duplicate Signed-off-by lines.
+
+#test "" = "$(grep '^Signed-off-by: ' "$1" |
+#	 sort | uniq -c | sed -e '/^[ 	]*1[ 	]/d')" || {
+#	echo >&2 Duplicate Signed-off-by lines.
+#	exit 1
+#}
+####
+####
+####
+if [ "$INFINITY_DEV_HOME" == '' ]; then
+	echo "ERROR: You must run 'setenv' to enable Infinity Developer Environment Settings before committing anything!" 
+	exit 4
+fi
+if [ -x $INFINITY_DEV_HOME/bin/git-commit-checker ] && [[ ! "$0" =~ ^.*git-commit-checker$ ]]; then
+	SRCSHA=`shasum $INFINITY_DEV_HOME/bin/git-commit-checker|awk '{print $1}'`
+	TARSHA=`shasum $0|awk '{print $1}'`
+	if [ "$SRCSHA" != "$TARSHA" ]; then
+		cp -pf $INFINITY_DEV_HOME/bin/git-commit-checker $0
+		echo "INFO: Commit hook updated."
+	fi
+	exec $INFINITY_DEV_HOME/bin/git-commit-checker $*
+else
+	####
+	#### Retrive Redmine Ticket# from commit messaage
+	####
+	MESSAGE=`cat $1`
+	if [[ $MESSAGE =~ ^\[refs[[:space:]]#([0-9]+)(\.[0-9][0-9][0-9])?\](\[.+\])*[[:space:]][^-] ]]; then
+		TICKET_NO=${BASH_REMATCH[1]}
+		echo "Checking ticket #$TICKET_NO status..."
+	else
+		echo "ERROR: Commit message doesn't comply with the rule: '[refs #ISSUE_NUMBER(.REDO_NUMBER)][TAG1][TAG2]... MESSAGE THAT DOES NOT HAVE LEADING MINUS(-)'"
+		exit 1
+	fi
+	####
+	#### Locating checkcommitstatus or psql
+	####
+	CHECKCOMMITSTATUS=`which checkcommitstatus 2> /dev/null`
+	if [ "$CHECKCOMMITSTATUS" == '' ]; then
+        PSQL=`which psql 2> /dev/null`
+        if [ "$PSQL" == '' ]; then
+            echo "ERROR: Cannot find the neither 'checkcommitstatus' nor 'psql' in PATH!"
+            exit 2
+        fi
+	fi
+	####
+	#### Searching ticket
+	####
+    if [ "$CHECKCOMMITSTATUS" != '' ]; then
+        TICKET_SUBJECT=`checkcommitstatus $TICKET_NO`
+        if [ "$TICKET_SUBJECT" == '' ]; then
+            TICKET_SUBJECT=`checkcommitstatus $TICKET_NO pg://redmine:redmine@alphalab.cechire.com:5432/redmine2`
+        fi
+    elif [ "$PSQL" != '' ]; then
+        TICKET_SUBJECT=`PGPASSWORD='mnmadmin' psql -h alphalab.cechire.com -U mnmadmin -w -d redmine -q -t -c "select i.subject from issues i left join projects p on p.id=i.project_id left join issue_statuses s on i.status_id=s.id where s.name='ASSIGNED' and i.id=$TICKET_NO order by i.id"`
+    fi
+	if [ "$TICKET_SUBJECT" == '' ]; then
+		echo "ERROR: no matched ticket #$TICKET_NO with status 'ASSIGNED' could be found!"
+		exit 3
+	else
+		echo "Commiting changes to ticket #$TICKET_NO:$TICKET_SUBJECT"
+	fi
+	####
+	####
+	####
+fi

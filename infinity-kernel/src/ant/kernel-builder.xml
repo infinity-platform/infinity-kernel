@@ -1,0 +1,1183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="kernel" default="all" basedir="." xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+    <property environment="env" />
+    <property name="INFINITY_KERNEL_BASE" location=".." />
+    <property name="INFINITY_KERNEL_SOURCE_BASE" value="${env.INFINITY_KERNEL_SOURCE_BASE}" />
+    <property name="dir.kernel" value="${INFINITY_KERNEL_BASE}/infinity-kernel" />
+    <property name="dir.kernel.core" value="${INFINITY_KERNEL_SOURCE_BASE}/infinity-kernel-core" />
+    <property name="dir.kernel.commons" value="${INFINITY_KERNEL_SOURCE_BASE}/infinity-kernel-commons" />
+    <property name="dir.kernel.facades" value="${INFINITY_KERNEL_SOURCE_BASE}/infinity-kernel-facades" />
+
+    <property name="dir.bin" value="bin" />
+    <property name="dir.src" value="src" />
+    <import file="${dir.kernel}/libraries.xml" />
+    <property name="dir.src.java" value="${dir.src}/main/java" />
+    <property name="dir.src.junit" value="${dir.src}/junit" />
+    <property name="dir.src.web" value="${dir.src}/web" />
+    <property name="dir.src.lps" value="${dir.src}/lps" />
+    <property name="dir.src.postzmsg" value="${dir.src}/postzmsg" />
+    <property name="dir.etc" value="etc" />
+    <property name="dir.deploy" value="deploy" />
+    <property name="dir.build" value="build" />
+    <property name="dir.mnm" value="mnm" />
+    <property name="dir.dist" value="dist" />
+	<property name="dir.tools" value="tools" />
+	<property name="dir.target" value="target" />
+    <property name="dir.classes" value="${dir.target}/classes" />
+    <property name="dir.runtime" value="${dir.target}/runtime" />
+
+    <target name="all" depends="packaging-setup-base" />
+    
+    <typedef name="infinityenvcheck" classname="com.iisigroup.infinity.commons.ant.InfinityEnvCheckTask" classpath="${dir.kernel}/lib/infinity-utils/infinity-ant-tasks.jar" />
+
+    <target name="buildInfo">
+        <infinityenvcheck>
+            <githooks gitdir="${basedir}/../.git">
+                <fileset dir="${INFINITY_KERNEL_BASE}/infinity-kernel/etc/hooks">
+                    <include name="*"/>
+                </fileset>
+            </githooks>
+        </infinityenvcheck>
+        <echo message="Current basedir is: ${basedir}" />
+        <property file="build.properties" />
+        <tstamp>
+            <format property="build.timestamp" pattern="yyyyMMddHHmmssSSS" />
+        </tstamp>
+        <property name="build.version" value="${version.major}.${version.minor}.${version.release}.${version.build}" />
+        <echo>BuildInfo: build.timestamp=${build.timestamp}</echo>
+        <echo>BuildInfo: build.version=${build.version}</echo>
+        <echo message="Applying INFINITY_KERNEL_BASE = ${INFINITY_KERNEL_BASE}" />
+        <echo message="Applying INFINITY_KERNEL_SOURCE_BASE = ${INFINITY_KERNEL_SOURCE_BASE}" />
+    </target>
+
+    <target name="init" depends="buildInfo">
+        <property name="env.type" value="DEFAULT" />
+        <copy todir="${dir.build}" overwrite="true" encoding="UTF8" outputencoding="UTF8">
+            <fileset dir=".">
+                <include name="build.properties" />
+            </fileset>
+            <filterset begintoken="$" endtoken=":">
+                <filter token="LastChangedRevision" value="" />
+            </filterset>
+            <filterset begintoken="$" endtoken="$">
+                <filter token="$" value="" />
+            </filterset>
+        </copy>
+        <propertyfile comment="Build Configuration" file="${dir.build}/build.properties">
+            <entry key="build.timestamp" type="date" pattern="yyyyMMddHHmmss" value="now" />
+        </propertyfile>
+        <property file="${dir.build}/build.properties" />
+        <echo message="Version:${version.major}.${version.minor}.${version.release}.${version.build}.${version.buildNumber} Timestamp:${build.timestamp}" />
+        <replaceregexp match="&lt;version&gt;.*" replace="&lt;version&gt;${kernel.version}&lt;/version&gt;" flags="" byline="false">
+            <fileset dir="${basedir}">
+                <include name="pom.xml" />
+            </fileset>
+        </replaceregexp>
+    </target>
+
+    <target name="clean">
+        <delete includeEmptyDirs="true" failonerror="false">
+            <fileset dir="${dir.build}" includes="**/*" />
+        	<fileset dir="${dir.deploy}" includes="**/*" />
+        </delete>
+    </target>
+
+    <target name="mnm-nodeagent.mnm" description="mnm-nodeagent.mnm" depends="init">
+        <mkdir dir="${dir.deploy}" />
+        <delete file="${dir.deploy}/mnm-nodeagent.mnm" />
+        <zip destfile="${dir.deploy}/mnm-nodeagent.mnm">
+            <zipfileset dir="${dir.src.web}" prefix="nodeagent">
+                <include name="**/*" />
+            </zipfileset>
+            <!--
+            <zipfileset dir="${basedir}-Flex/bin-debug" prefix="nodeagent">
+                <include name="**/*" />
+            </zipfileset>
+            -->
+            <zipfileset dir="${dir.etc}" prefix="nodeagent/WEB-INF">
+                <include name="web.xml" />
+                <include name="mnm.xml" />
+            </zipfileset>
+            <zipfileset dir="${dir.kernel}/${dir.library.slf4j}" prefix="nodeagent/WEB-INF/lib">
+                <include name="slf4j-api-*.jar" />
+                <include name="slf4j-log4j12-*.jar" />
+            </zipfileset>
+            <zipfileset dir="${dir.kernel}/${dir.deploy}" prefix="nodeagent/WEB-INF/lib">
+                <include name="mnm-commons-processexecuter.jar" />
+            </zipfileset>
+            <zipfileset dir="${dir.kernel}/${dir.deploy}" prefix="nodeagent/WEB-INF/lib">
+                <include name="mnm-commons-internalmonitor.jar" />
+            </zipfileset>
+            <zipfileset dir="${dir.etc}" prefix="">
+                <include name="nodeagent.xml" />
+            </zipfileset>
+            <zipfileset dir="${dir.src.postzmsg}" prefix="nodeagent/WEB-INF/postzmsg">
+                <include name="**/*" />
+            </zipfileset>
+        </zip>
+        <antcall target="generateMnmHash" />
+    </target>
+
+    <typedef name="mnmhash" classname="com.iisigroup.infinity.commons.ant.MnmHashTask" classpath="${dir.kernel}/lib/infinity-utils/infinity-ant-tasks.jar" />
+
+    <target name="generateMnmHash">
+        <mnmhash mnmpath="${dir.deploy}/mnm-nodeagent.mnm" hashproperty="MNM_HASH" />
+        <echo message="MNM_HASH: ${MNM_HASH}" />
+    </target>
+
+    <target name="deployMnmModules-nodeagent" description="Deploy MNM modules to NodeAgent" depends="deployConfiguration, mnm-nodeagent.mnm">
+        <!--
+        <delete dir="${dir.kernel}/modules/nodeagent" />
+        <delete file="${dir.kernel}/modules/nodeagent.xml" />
+        <unjar src="${dir.deploy}/mnm-nodeagent.mnm" dest="${dir.kernel}/modules" />
+        -->
+        <copy todir="${dir.classes}/com/iisigroup/infinity/kernel/nodeagent">
+            <fileset dir="deploy">
+                <include name="mnm-nodeagent.mnm" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="deployConfiguration">
+        <copy todir="${dir.classes}/com/iisigroup/infinity/kernel/nodeagent">
+            <fileset dir="etc">
+                <include name="log4j.xml" />
+                <include name="logging.properties" />
+                <include name="mnmdefault.xml" />
+                <include name="nodeagentprofile.xml" />
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="infinity-kernel-core.jar">
+        <replaceregexp match="&lt;version&gt;.*" replace="&lt;version&gt;${kernel.version}&lt;/version&gt;" flags="" byline="false">
+            <fileset dir="${dir.kernel.core}">
+                <include name="pom.xml" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="&lt;buildNumber&gt;.*" replace="&lt;buildNumber&gt;${kernel.build}&lt;/buildNumber&gt;" flags="" byline="false">
+            <fileset dir="${dir.kernel.core}">
+                <include name="pom.xml" />
+            </fileset>
+        </replaceregexp>
+        <exec dir="${dir.kernel.core}" executable="/bin/sh" osfamily="unix">
+            <arg line="-c &quot;mvn clean install -DtriggeredBy=infinity-kernel&quot;" />
+        </exec>
+        <exec dir="${dir.kernel.core}" executable="cmd" osfamily="windows">
+            <arg line="/c &quot;mvn clean install -DtriggeredBy=infinity-kernel&quot;" />
+        </exec>
+        <jar destfile="deploy/infinity-kernel-core.jar">
+            <fileset dir="${dir.kernel.core}/target/classes">
+                <include name="resources/**/*" />
+                <include name="**/infinity/**/*" />
+                <include name="org/apache/**/*" />
+                <include name="com/googlecode/**/*" />
+                <exclude name="**/*Test.class" />
+                <exclude name="**/Test*.class" />
+                <exclude name="**/*.jpage" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/log4j.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/mnmdefault.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/nodeagentprofile.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/java.policy" />
+            </fileset>
+            <zipfileset dir="etc" prefix="com/iisigroup/infinity/kernel/nodeagent">
+                <!--
+                <include name="log4j.xml" />
+                -->
+                <include name="mnmdefault.xml" />
+                <!--
+                <include name="nodeagentprofile.xml" />
+                -->
+                <include name="java.policy" />
+            </zipfileset>
+            <zipfileset dir="${dir.deploy}" prefix="com/iisigroup/infinity/kernel/nodeagent">
+                <include name="mnm-nodeagent.mnm" />
+            </zipfileset>
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+                <attribute name="Main-Class" value="com.iisigroup.infinity.kernel.nodeagent.NodeAgent" />
+                <attribute name="Class-Path" value="${dependencies.classpath.manifest}" />
+                <attribute name="Mnm-ModuleName" value="${module.name}" />
+                <attribute name="Mnm-ModuleCodename" value="${module.codename}" />
+                <attribute name="Mnm-ModuleInstanceName" value="${module.instancename}" />
+                <attribute name="Mnm-Version" value="${build.version}" />
+            	<attribute name="Mnm-BuildNumber" value="${buildNumber}" />
+                <attribute name="Mnm-Timestamp" value="${build.timestamp}" />
+                <attribute name="Mnm-LastChangedAt" value="${version.lastChangedDateProperty}" />
+                <attribute name="Mnm-LastChangedBy" value="${version.lastCommitAuthorProperty}" />
+            </manifest>
+        </jar>
+        <zip destfile="deploy/infinity-kernel-core.src.zip">
+            <fileset dir="${dir.kernel.core}/${dir.src.java}">
+                <include name="**/*" />
+            </fileset>
+        </zip>
+        <checksum file="deploy/infinity-kernel-core.jar" property="md5.deploy.core" />
+        <touch file="${dir.dist}/infinity-kernel-core.jar" mkdirs="true" />
+        <checksum file="${dir.dist}/infinity-kernel-core.jar" property="md5.dist.core"  />
+        <condition property="kernelCoreJarIsTheSame">
+            <equals arg1="${md5.deploy.core}" arg2="${md5.dist.core}" />
+        </condition>
+        <antcall target="deployKernelCoreJarToDist" />
+    </target>
+
+    <target name="deployKernelCoreJarToDist" unless="kernelCoreJarIsTheSame">
+        <echo message="Updating dist/infinity-kernel-core.jar... (because checksum is different: new:${md5.deploy.core} vs old:${md5.dist.core}" />
+        <copy todir="${dir.dist}" overwrite="true">
+            <fileset dir="${dir.deploy}">
+                <include name="infinity-kernel-core.jar" />
+            </fileset>
+        </copy>
+    	<condition property="RUNTIME_BASE_DEFINED" value="false">
+    		<scriptcondition language="javascript">
+    			<![CDATA[
+    			var runtimeBase = java.lang.System.getenv("INFINITY_RUNTIME_BASE");
+    			if (runtimeBase != null && runtimeBase.length() > 0) {
+    				self.setValue(true);
+    			}
+    			]]>
+    		</scriptcondition>
+    	</condition>
+    	<antcall target="deployKernelCoreJarToRuntime" />
+    </target>
+	
+	<target name="deployKernelCoreJarToRuntime" if="RUNTIME_BASE_DEFINED">
+		<echo message="Deploying infinity-kernel-core.jar to following places:" />
+		<echo message="  » ${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-kernel-core.jar" />
+		<echo message="  » ${env.INFINITY_KERNEL_BASE}/../lib/000_infinity-kernel-core.jar" />
+		<echo message="  » ${env.INFINITY_RUNTIME_BASE}/lib/000_infinity-kernel-core.jar" />
+		<copy file="${dir.deploy}/infinity-kernel-core.jar" tofile="${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-kernel-core.jar" failonerror="false" overwrite="true" />
+		<copy file="${dir.deploy}/infinity-kernel-core.jar" tofile="${env.INFINITY_KERNEL_BASE}/../runtime/lib/000_infinity-kernel-core.jar" failonerror="false" overwrite="true" />
+		<copy file="${dir.deploy}/infinity-kernel-core.jar" tofile="${env.INFINITY_RUNTIME_BASE}/lib/000_infinity-kernel-core.jar" failonerror="false" overwrite="true" />
+	</target>
+
+    <target name="infinity-kernel-commons.jar">
+        <replaceregexp match="&lt;version&gt;.*" replace="&lt;version&gt;${kernel.version}&lt;/version&gt;" flags="" byline="false">
+            <fileset dir="${dir.kernel.commons}">
+                <include name="pom.xml" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="&lt;buildNumber&gt;.*" replace="&lt;buildNumber&gt;${kernel.build}&lt;/buildNumber&gt;" flags="" byline="false">
+            <fileset dir="${dir.kernel.commons}">
+                <include name="pom.xml" />
+            </fileset>
+        </replaceregexp>
+        <exec dir="${dir.kernel.commons}" executable="/bin/sh" osfamily="unix">
+            <arg line="-c &quot;mvn clean install -DtriggeredBy=infinity-kernel&quot;" />
+        </exec>
+        <exec dir="${dir.kernel.commons}" executable="cmd" osfamily="windows">
+            <arg line="/c &quot;mvn clean install -DtriggeredBy=infinity-kernel&quot;" />
+        </exec>
+        <jar destfile="deploy/infinity-kernel-commons.jar">
+            <fileset dir="${dir.kernel.commons}/target/classes">
+                <include name="**/infinity/**/*" />
+                <exclude name="**/*Test.class" />
+                <exclude name="**/Test*.class" />
+                <exclude name="**/*.jpage" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/log4j.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/mnmdefault.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/nodeagentprofile.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/java.policy" />
+            </fileset>
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+                <attribute name="Mnm-ModuleName" value="${module.name}" />
+                <attribute name="Mnm-ModuleCodename" value="${module.codename}" />
+                <attribute name="Mnm-ModuleInstanceName" value="${module.instancename}" />
+                <attribute name="Mnm-Version" value="${build.version}" />
+            	<attribute name="Mnm-BuildNumber" value="${buildNumber}" />
+                <attribute name="Mnm-Timestamp" value="${build.timestamp}" />
+                <attribute name="Mnm-LastChangedAt" value="${version.lastChangedDateProperty}" />
+                <attribute name="Mnm-LastChangedBy" value="${version.lastCommitAuthorProperty}" />
+            </manifest>
+        </jar>
+        <zip destfile="deploy/infinity-kernel-commons.src.zip">
+            <fileset dir="${dir.kernel.commons}/${dir.src.java}">
+                <include name="**/*" />
+            </fileset>
+        </zip>
+        <checksum file="deploy/infinity-kernel-commons.jar" property="md5.deploy.commons" />
+        <touch file="${dir.dist}/infinity-kernel-commons.jar" mkdirs="true" />
+        <checksum file="${dir.dist}/infinity-kernel-commons.jar" property="md5.dist.commons" />
+        <condition property="kernelCommonsJarIsTheSame">
+            <equals arg1="${md5.deploy.commons}" arg2="${md5.dist.commons}" />
+        </condition>
+        <antcall target="deployKernelCommonsJarToDist" />
+    </target>
+
+    <target name="deployKernelCommonsJarToDist" unless="kernelCommonsJarIsTheSame">
+        <echo message="Updating dist/infinity-kernel-commons.jar... (because checksum is different: new:${md5.deploy.commons} vs old:${md5.dist.commons}" />
+        <copy todir="${dir.dist}" overwrite="true">
+            <fileset dir="${dir.deploy}">
+                <include name="infinity-kernel-commons.jar" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="infinity-kernel-facades.jar">
+        <replaceregexp match="&lt;version&gt;.*" replace="&lt;version&gt;${kernel.version}&lt;/version&gt;" flags="" byline="false">
+            <fileset dir="${dir.kernel.facades}">
+                <include name="pom.xml" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="&lt;buildNumber&gt;.*" replace="&lt;buildNumber&gt;${kernel.build}&lt;/buildNumber&gt;" flags="" byline="false">
+            <fileset dir="${dir.kernel.facades}">
+                <include name="pom.xml" />
+            </fileset>
+        </replaceregexp>
+        <exec dir="${dir.kernel.facades}" executable="/bin/sh" osfamily="unix">
+            <arg line="-c &quot;mvn clean install -DtriggeredBy=infinity-kernel&quot;" />
+        </exec>
+        <exec dir="${dir.kernel.facades}" executable="cmd" osfamily="windows">
+            <arg line="/c &quot;mvn clean install -DtriggeredBy=infinity-kernel&quot;" />
+        </exec>
+        <jar destfile="deploy/infinity-kernel-facades.jar">
+            <fileset dir="${dir.kernel.facades}/target/classes">
+                <include name="**/infinity/**/*" />
+                <exclude name="**/*Test.class" />
+                <exclude name="**/Test*.class" />
+                <exclude name="**/*.jpage" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/log4j.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/mnmdefault.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/nodeagentprofile.xml" />
+                <exclude name="com/iisigroup/infinity/kernel/nodeagent/java.policy" />
+            </fileset>
+            <manifest>
+                <attribute name="Built-By" value="${user.name}" />
+                <attribute name="Mnm-ModuleName" value="${module.name}" />
+                <attribute name="Mnm-ModuleCodename" value="${module.codename}" />
+                <attribute name="Mnm-ModuleInstanceName" value="${module.instancename}" />
+                <attribute name="Mnm-Version" value="${build.version}" />
+            	<attribute name="Mnm-BuildNumber" value="${buildNumber}" />
+                <attribute name="Mnm-Timestamp" value="${build.timestamp}" />
+                <attribute name="Mnm-LastChangedAt" value="${version.lastChangedDateProperty}" />
+                <attribute name="Mnm-LastChangedBy" value="${version.lastCommitAuthorProperty}" />
+            </manifest>
+        </jar>
+        <zip destfile="deploy/infinity-kernel-facades.src.zip">
+            <fileset dir="${dir.kernel.facades}/${dir.src.java}">
+                <include name="**/*" />
+            </fileset>
+        </zip>
+        <checksum file="deploy/infinity-kernel-facades.jar" property="md5.deploy.facades" />
+        <touch file="${dir.dist}/infinity-kernel-facades.jar" mkdirs="true" />
+        <checksum file="${dir.dist}/infinity-kernel-facades.jar" property="md5.dist.facades" />
+        <condition property="kernelFacadesJarIsTheSame">
+            <equals arg1="${md5.deploy.facades}" arg2="${md5.dist.facades}" />
+        </condition>
+        <antcall target="deployKernelFacadesJarToDist" />
+    </target>
+
+    <target name="deployKernelFacadesJarToDist" unless="kernelFacadesJarIsTheSame">
+        <echo message="Updating dist/infinity-kernel-facades.jar... (because checksum is different: new:${md5.deploy.facades} vs old:${md5.dist.facades}" />
+        <copy todir="${dir.dist}" overwrite="true">
+            <fileset dir="${dir.deploy}">
+                <include name="infinity-kernel-facades.jar" />
+            </fileset>
+        </copy>
+    </target>
+    
+    <target name="packageing" description="packaging" depends="init, deployMnmModules-nodeagent">
+        <mkdir dir="${dir.deploy}" />
+        <script language="javascript">
+            <![CDATA[
+            var project = self.getProject();
+            var kernelCorePath = project.getProperty("dir.kernel.core");
+            var kernelCoreDir = null;
+            var kernelCommonsPath = project.getProperty("dir.kernel.commons");
+            var kernelCommonsDir = null;
+            var kernelFacadesPath = project.getProperty("dir.kernel.facades");
+            var kernelFacadesDir = null;
+            if (kernelCorePath != null && kernelCorePath.length() > 0) {
+                kernelCoreDir = new java.io.File(kernelCorePath);
+                java.lang.System.out.println("Checking " + kernelCoreDir.getAbsolutePath() + "..." + kernelCoreDir.exists());
+                if (kernelCoreDir.exists()) {
+                    var antCallTask = project.createTask("antcall");
+                    antCallTask.setTarget("infinity-kernel-core.jar");
+                    antCallTask.perform();
+                }
+            }
+            if (kernelCommonsPath != null && kernelCommonsPath.length() > 0) {
+                kernelCommonsDir = new java.io.File(kernelCommonsPath);
+                java.lang.System.out.println("Checking " + kernelCommonsDir.getAbsolutePath() + "..." + kernelCommonsDir.exists());
+                if (kernelCommonsDir.exists()) {
+                    var antCallTask = project.createTask("antcall");
+                    antCallTask.setTarget("infinity-kernel-commons.jar");
+                    antCallTask.perform();
+                }
+            }
+            if (kernelFacadesPath != null && kernelFacadesPath.length() > 0) {
+                kernelFacadesDir = new java.io.File(kernelFacadesPath);
+                java.lang.System.out.println("Checking " + kernelFacadesDir.getAbsolutePath() + "..." + kernelFacadesDir.exists());
+                if (kernelFacadesDir.exists()) {
+                    var antCallTask = project.createTask("antcall");
+                    antCallTask.setTarget("infinity-kernel-facades.jar");
+                    antCallTask.perform();
+                }
+            }
+        	]]>
+        </script>
+    	<delete includeemptydirs="true" failonerror="false">
+    		<fileset dir="${dir.dist}">
+    			<include name="**/*" />
+    			<exclude name="*.jar" />
+    			<exclude name="*.exe" />
+    			<exclude name="*.zip" />
+    			<exclude name="*.car" />
+    		</fileset>
+    	</delete>
+    	<mkdir dir="${dir.dist}/${build.version}.${buildNumber}" />
+    	<copy todir="${dir.dist}/${build.version}.${buildNumber}">
+    		<fileset dir="${dir.dist}">
+    			<include name="*.jar" />
+    		</fileset>
+    	</copy>
+    </target>
+
+    <target name="prepareIndividualPortSetFiles" if="portSetPrefix">
+        <!-- nodeagentprofile-99xx.xml -->
+        <copy file="${dir.etc}/nodeagentprofile.xml" tofile="${dir.build}/setup/etc/nodeagentprofile-${portSetPrefix}x.xml" overwrite="true">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="APP_RUNTIME_MODE" value="${app.runtimeMode}" />
+                <filter token="SERVICE_PORT" value="${portSetPrefix}0" />
+                <filter token="AUTO_PORT_SHIFT" value="${mnmsystem.nodeagent.autoPortShift}" />
+                <filter token="AUTO_PORT_SHIFT_TIMES" value="${mnmsystem.nodeagent.autoPortShiftTimes}" />
+                <filter token="FORCE_BINDING_DEFAULT_ADDRESS_ONLY" value="${mnmsystem.nodeagent.forceBindingDefaultAddressOnly}" />
+                <filter token="BINDING_ADDRESS" value="${mnmsystem.nodeagent.bindAddress}" />
+                <filter token="mnmsystem.nodeagent.sslEnabled" value="${mnmsystem.nodeagent.sslEnabled}" />
+                <filter token="mnmsystem.nodeagent.keyStore" value="${mnmsystem.nodeagent.keyStore}" />
+                <filter token="mnmsystem.nodeagent.password" value="${mnmsystem.nodeagent.password}" />
+                <filter token="mnmsystem.nodeagent.keyPassword" value="${mnmsystem.nodeagent.keyPassword}" />
+                <filter token="mnmsystem.nodeagent.trustStore" value="${mnmsystem.nodeagent.trustStore}" />
+                <filter token="mnmsystem.nodeagent.trustPassword" value="${mnmsystem.nodeagent.trustPassword}" />
+                <filter token="mnmsystem.nodeagent.httpsPort" value="${mnmsystem.nodeagent.httpsPort}" />
+                <filter token="mnmsystem.nodeagent.httpsAddress" value="${mnmsystem.nodeagent.httpsAddress}" />
+                <filter token="mnmsystem.nodeagent.httpPort" value="${mnmsystem.nodeagent.httpPort}" />
+                <filter token="mnmsystem.nodeagent.httpAddress" value="${mnmsystem.nodeagent.httpAddress}" />
+            </filterset>
+        </copy>
+        <!-- nodeagentservice -->
+        <copy file="${dir.bin}/nodeagentservice" tofile="${dir.build}/setup/bin/nodeagentservice-${portSetPrefix}x" overwrite="true" failonerror="false">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="installer.service.id" value="${installer.service.id}" />
+                <filter token="installer.service.name" value="${installer.service.name}" />
+            </filterset>
+        </copy>
+        <!-- nodeagent-99xx.conf -->
+        <copy file="${dir.etc}/nodeagent.conf" tofile="${dir.build}/setup/etc/nodeagent-${portSetPrefix}x.conf" overwrite="true">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="APP_ID" value="${app.id}" />
+                <filter token="APP_VERSION" value="${app.version}" />
+                <filter token="APP_REGION" value="${app.region}" />
+                <filter token="APP_SERVER_PROTOCOL" value="${app.serverProtocol}" />
+                <filter token="APP_SERVER_HOST_NAME" value="${app.serverHostName}" />
+                <filter token="APP_SERVER_PORT_PREFIX" value="${app.serverPortPrefix}" />
+                <filter token="APP_SERVER_PORT" value="${app.serverPort}" />
+                <filter token="APP_SERVER_XMLRPC_URL" value="${app.serverProtocol}://${app.serverHostName}:${app.serverPort}/mnmapp/mnm/nodeAgent/xmlrpc" />
+                <filter token="APP_NODEAGENT_INSTANCE_ID" value="${app.nodeAgentInstanceId}" />
+                <filter token="APP_JVM_MAXMEMORY" value="${app.jvmmaxmemory}" />
+                <filter token="installer.service.id" value="${installer.service.id}" />
+                <filter token="installer.service.name" value="${installer.service.name}" />
+            	<filter token="DEPENDENCIES_CLASSPATH_WRAPPER" value="${dependencies.classpath.wrapper}" />
+            </filterset>
+        </copy>
+        <!-- nodeagent-99xx.ini -->
+        <copy file="${dir.etc}/nodeagent.ini" tofile="${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.ini" overwrite="true">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="APP_ID" value="${app.id}" />
+                <filter token="APP_VERSION" value="${app.version}" />
+                <filter token="APP_REGION" value="${app.region}" />
+                <filter token="APP_SERVER_PROTOCOL" value="${app.serverProtocol}" />
+                <filter token="APP_SERVER_HOST_NAME" value="${app.serverHostName}" />
+                <filter token="APP_SERVER_PORT_PREFIX" value="${app.serverPortPrefix}" />
+                <filter token="APP_SERVER_PORT" value="${app.serverPort}" />
+                <filter token="APP_SERVER_XMLRPC_URL" value="${app.serverProtocol}://${app.serverHostName}:${app.serverPort}/mnmapp/mnm/nodeAgent/xmlrpc" />
+                <filter token="APP_NODEAGENT_INSTANCE_ID" value="${app.nodeAgentInstanceId}" />
+                <filter token="APP_JVM_MAXMEMORY" value="${app.jvmmaxmemory}" />
+                <filter token="SERVICE_OPTION_MARK" value="#" />
+                <filter token="INI_FILE_NAME" value="nodeagent" />
+                <filter token="installer.service.id" value="${installer.service.id}" />
+                <filter token="installer.service.name" value="${installer.service.name}" />
+            	<filter token="DEPENDENCIES_CLASSPATH_WINRUN4J" value="${dependencies.classpath.winrun4j}" />
+                <filter token="app.jvmdll.location" value="..\java\bin\client\jvm.dll" />
+            </filterset>
+        </copy>
+        <!-- nodeagent64-99xx.ini -->
+        <copy file="${dir.etc}/nodeagent.ini" tofile="${dir.build}/setup/winrun4j/nodeagent64-${portSetPrefix}x.ini" overwrite="true">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="APP_ID" value="${app.id}" />
+                <filter token="APP_VERSION" value="${app.version}" />
+                <filter token="APP_REGION" value="${app.region}" />
+                <filter token="APP_SERVER_PROTOCOL" value="${app.serverProtocol}" />
+                <filter token="APP_SERVER_HOST_NAME" value="${app.serverHostName}" />
+                <filter token="APP_SERVER_PORT_PREFIX" value="${app.serverPortPrefix}" />
+                <filter token="APP_SERVER_PORT" value="${app.serverPort}" />
+                <filter token="APP_SERVER_XMLRPC_URL" value="${app.serverProtocol}://${app.serverHostName}:${app.serverPort}/mnmapp/mnm/nodeAgent/xmlrpc" />
+                <filter token="APP_NODEAGENT_INSTANCE_ID" value="${app.nodeAgentInstanceId}" />
+                <filter token="APP_JVM_MAXMEMORY" value="${app.jvmmaxmemory}" />
+                <filter token="SERVICE_OPTION_MARK" value="#" />
+                <filter token="INI_FILE_NAME" value="nodeagent64" />
+                <filter token="installer.service.id" value="${installer.service.id}" />
+                <filter token="installer.service.name" value="${installer.service.name}" />
+            	<filter token="DEPENDENCIES_CLASSPATH_WINRUN4J" value="${dependencies.classpath.winrun4j}" />
+                <filter token="app.jvmdll.location" value="..\java\bin\server\jvm.dll" />
+            </filterset>
+        </copy>
+        <!-- nodeagent-99xx.exe -->
+        <copy file="bin/nodeagent.exe" tofile="${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe" />
+        <exec executable="${basedir}/lib/winrun4j/RCEDIT.exe" osfamily="windows">
+            <arg line="/I ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
+        </exec>
+        <exec dir="${basedir}" executable="wine" osfamily="unix">
+            <arg line="${basedir}/lib/winrun4j/RCEDIT.exe /I ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
+        </exec>
+        <copy file="bin/nodeagent64.exe" tofile="${dir.build}/setup/winrun4j/nodeagent64-${portSetPrefix}x.exe" />
+        <exec executable="${basedir}/lib/winrun4j/RCEDIT64.exe" osfamily="windows">
+            <arg line="/I ${dir.build}/setup/winrun4j/nodeagent64-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
+        </exec>
+        <exec dir="${basedir}" executable="wine" osfamily="unix">
+            <arg line="${basedir}/lib/winrun4j/RCEDIT64.exe /I ${dir.build}/setup/winrun4j/nodeagent64-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
+        </exec>
+        <!--
+        <exec executable="${basedir}/lib/winrun4j/RCEDIT.exe" osfamily="windows">
+            <arg line="/N ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.ini" />
+        </exec>
+        <exec dir="${basedir}" executable="wine" osfamily="unix">
+            <arg line="${basedir}/lib/winrun4j/RCEDIT.exe /N ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.ini" />
+        </exec>
+        -->
+        <!-- nodeagentservice-99xx.ini -->
+        <copy file="${dir.etc}/nodeagent.ini" tofile="${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.ini" overwrite="true">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="APP_ID" value="${app.id}" />
+                <filter token="APP_VERSION" value="${app.version}" />
+                <filter token="APP_REGION" value="${app.region}" />
+                <filter token="APP_SERVER_PROTOCOL" value="${app.serverProtocol}" />
+                <filter token="APP_SERVER_HOST_NAME" value="${app.serverHostName}" />
+                <filter token="APP_SERVER_PORT_PREFIX" value="${app.serverPortPrefix}" />
+                <filter token="APP_SERVER_PORT" value="${app.serverPort}" />
+                <filter token="APP_SERVER_XMLRPC_URL" value="${app.serverProtocol}://${app.serverHostName}:${app.serverPort}/mnmapp/mnm/nodeAgent/xmlrpc" />
+                <filter token="APP_NODEAGENT_INSTANCE_ID" value="${app.nodeAgentInstanceId}" />
+                <filter token="APP_JVM_MAXMEMORY" value="${app.jvmmaxmemory}" />
+                <filter token="SERVICE_OPTION_MARK" value="" />
+                <filter token="INI_FILE_NAME" value="nodeagentservice" />
+                <filter token="installer.service.id" value="${installer.service.id}" />
+                <filter token="installer.service.name" value="${installer.service.name}" />
+            	<filter token="DEPENDENCIES_CLASSPATH_WINRUN4J" value="${dependencies.classpath.winrun4j}" />
+                <filter token="app.jvmdll.location" value="..\java\bin\client\jvm.dll" />
+            </filterset>
+        </copy>
+        <!-- nodeagentservice64-99xx.ini -->
+        <copy file="${dir.etc}/nodeagent.ini" tofile="${dir.build}/setup/winrun4j/nodeagentservice64-${portSetPrefix}x.ini" overwrite="true">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="APP_ID" value="${app.id}" />
+                <filter token="APP_VERSION" value="${app.version}" />
+                <filter token="APP_REGION" value="${app.region}" />
+                <filter token="APP_SERVER_PROTOCOL" value="${app.serverProtocol}" />
+                <filter token="APP_SERVER_HOST_NAME" value="${app.serverHostName}" />
+                <filter token="APP_SERVER_PORT_PREFIX" value="${app.serverPortPrefix}" />
+                <filter token="APP_SERVER_PORT" value="${app.serverPort}" />
+                <filter token="APP_SERVER_XMLRPC_URL" value="${app.serverProtocol}://${app.serverHostName}:${app.serverPort}/mnmapp/mnm/nodeAgent/xmlrpc" />
+                <filter token="APP_NODEAGENT_INSTANCE_ID" value="${app.nodeAgentInstanceId}" />
+                <filter token="APP_JVM_MAXMEMORY" value="${app.jvmmaxmemory}" />
+                <filter token="SERVICE_OPTION_MARK" value="" />
+                <filter token="INI_FILE_NAME" value="nodeagentservice64" />
+                <filter token="installer.service.id" value="${installer.service.id}" />
+                <filter token="installer.service.name" value="${installer.service.name}" />
+            	<filter token="DEPENDENCIES_CLASSPATH_WINRUN4J" value="${dependencies.classpath.winrun4j}" />
+                <filter token="app.jvmdll.location" value="..\java\bin\server\jvm.dll" />
+            </filterset>
+        </copy>
+        <!-- nodeagentservice-99xx.exe -->
+        <copy file="bin/nodeagentservice.exe" tofile="${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe" />
+        <exec executable="${basedir}/lib/winrun4j/RCEDIT.exe" osfamily="windows">
+            <arg line="/I ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
+        </exec>
+        <exec dir="${basedir}" executable="wine" osfamily="unix">
+            <arg line="${basedir}/lib/winrun4j/RCEDIT.exe /I ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
+        </exec>
+        <copy file="bin/nodeagentservice64.exe" tofile="${dir.build}/setup/winrun4j/nodeagentservice64-${portSetPrefix}x.exe" />
+        <exec executable="${basedir}/lib/winrun4j/RCEDIT64.exe" osfamily="windows">
+            <arg line="/I ${dir.build}/setup/winrun4j/nodeagentservice64-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
+        </exec>
+        <exec dir="${basedir}" executable="wine" osfamily="unix">
+            <arg line="${basedir}/lib/winrun4j/RCEDIT64.exe /I ${dir.build}/setup/winrun4j/nodeagentservice64-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
+        </exec>
+        <!--
+        <exec executable="${basedir}/lib/winrun4j/RCEDIT.exe" osfamily="windows">
+            <arg line="/N ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.ini" />
+        </exec>
+        <exec dir="${basedir}" executable="wine" osfamily="unix">
+            <arg line="${basedir}/lib/winrun4j/RCEDIT.exe /N ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.ini" />
+        </exec>
+        -->
+        <!-- log4j-99xx.xml -->
+        <copy file="${dir.etc}/log4j.xml" tofile="${dir.build}/setup/etc/log4j-${portSetPrefix}x.xml" overwrite="true">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="LOG_DIR" value="${app.logDir}" />
+            </filterset>
+        </copy>
+        <!-- run-99xx.bat -->
+        <copy file="${dir.etc}/run.bat" tofile="${dir.build}/setup/bin/run-${portSetPrefix}x.bat" overwrite="true">
+            <filterset begintoken="@" endtoken="@">
+                <filter token="NODEAGENT_PORT_PREFIX" value="${portSetPrefix}" />
+                <filter token="app.baseDir" value="${app.baseDir}" />
+                <filter token="app.region" value="${app.region}" />
+            </filterset>
+        </copy>
+    </target>
+	
+    <target name="deploy-jars-to-runtime" if="build.kernel.onlyPackaging">
+        <copy file="${dir.dist}/infinity-kernel-core.jar" tofile="${dir.build}/setup/lib/000_infinity-kernel-core.jar" failonerror="true" overwrite="true" />
+        <copy file="${dir.dist}/infinity-kernel-core.jar" tofile="${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-kernel-core.jar" failonerror="true" overwrite="true" />
+        <copy file="${dir.dist}/infinity-kernel-core.jar" tofile="${env.INFINITY_KERNEL_BASE}/../runtime/lib/000_infinity-kernel-core.jar" failonerror="true" overwrite="true" />
+        <copy file="${dir.dist}/infinity-kernel-core.jar" tofile="${env.INFINITY_RUNTIME_BASE}/lib/000_infinity-kernel-core.jar" failonerror="true" overwrite="true" />
+    </target>
+
+    <target name="packaging-setup-base" depends="packageing" unless="build.kernel.onlyPackaging">
+        <delete dir="${dir.build}/setup" failonerror="false"/>
+        <mkdir dir="${dir.build}/setup/990x" />
+        <mkdir dir="${dir.build}/setup/991x" />
+        <mkdir dir="${dir.build}/setup/992x" />
+        <mkdir dir="${dir.build}/setup/993x" />
+        <mkdir dir="${dir.build}/setup/994x" />
+        <mkdir dir="${dir.build}/setup/995x" />
+        <mkdir dir="${dir.build}/setup/996x" />
+        <mkdir dir="${dir.build}/setup/997x" />
+        <mkdir dir="${dir.build}/setup/998x" />
+        <mkdir dir="${dir.build}/setup/999x" />
+        <property name="dir.jvm" value="${dir.build}/setup/jvm" />
+        <mkdir dir="${dir.jvm}" />
+        <unzip src="tools/jvm/jvm.zip" dest="${dir.jvm}" />
+        <property name="app.vanguardServiceUrl" value="${app.vanguardProtocol}://${app.vanguardHostName}:${app.vanguardPort}/mnmapp/mnm/vanguard" />
+        <copy todir="${dir.build}" overwrite="true">
+            <fileset dir="${dir.etc}">
+                <include name="nodeagent-base.iss" />
+            </fileset>
+            <filterset begintoken="@" endtoken="@">
+                <filter token="APP_REGION" value="${app.region}" />
+                <filter token="VER_MAJOR" value="${version.major}" />
+                <filter token="VER_MINOR" value="${version.minor}" />
+                <filter token="VER_RELEASE" value="${version.release}" />
+                <filter token="VER_BUILD" value="${version.build}" />
+            	<filter token="VER_BUILDNUMBER" value="${version.buildNumber}" />
+            	<filter token="VER_FULLVERSION" value="${kernel.buildVersion}" />
+                <filter token="BUILD_TIMESTAMP" value="${build.timestamp}" />
+                <filter token="VANGUARD_SERVICE_URL" value="${app.vanguardServiceUrl}" />
+                <filter token="VANGUARD_REPOSITORY" value="${app.vanguardRepository}" />
+                <filter token="app.bootstrap.displayName" value="${app.bootstrap.displayName}" />
+                <filter token="app.bootstrap.executable" value="${app.bootstrap.executable}" />
+                <filter token="installer.app.id" value="${installer.app.id}" />
+                <filter token="installer.app.name" value="${installer.app.name}" />
+                <filter token="installer.app.publisher" value="${installer.app.publisher}" />
+                <filter token="installer.app.publisher.url" value="${installer.app.publisher.url}" />
+                <filter token="installer.app.support.url" value="${installer.app.support.url}" />
+                <filter token="installer.app.updates.url" value="${installer.app.updates.url}" />
+                <filter token="installer.default.dir.name" value="${installer.default.dir.name}" />
+                <filter token="installer.default.group.name" value="${installer.default.group.name}" />
+                <filter token="installer.select.portset.990x" value="${installer.select.portset.990x}" />
+                <filter token="installer.select.portset.991x" value="${installer.select.portset.991x}" />
+                <filter token="installer.select.portset.992x" value="${installer.select.portset.992x}" />
+                <filter token="installer.select.portset.993x" value="${installer.select.portset.993x}" />
+                <filter token="installer.select.portset.994x" value="${installer.select.portset.994x}" />
+                <filter token="installer.select.portset.995x" value="${installer.select.portset.995x}" />
+                <filter token="installer.select.portset.996x" value="${installer.select.portset.996x}" />
+                <filter token="installer.select.portset.997x" value="${installer.select.portset.997x}" />
+                <filter token="installer.select.portset.998x" value="${installer.select.portset.998x}" />
+                <filter token="installer.select.portset.999x" value="${installer.select.portset.999x}" />
+                <filter token="installer.select.desktopicon" value="${installer.select.desktopicon}" />
+                <filter token="installer.select.desktopicon.common" value="${installer.select.desktopicon.common}" />
+                <filter token="installer.select.desktopicon.user" value="${installer.select.desktopicon.user}" />
+                <filter token="installer.select.quicklaunchicon" value="${installer.select.quicklaunchicon}" />
+                <filter token="installer.select.installservice" value="${installer.select.installservice}" />                
+                <filter token="installer.service.id" value="${installer.service.id}" />
+                <filter token="installer.service.name" value="${installer.service.name}" />
+                <filter token="installer.select.startmenuicnos" value="${installer.select.startmenuicnos}" />
+                <filter token="installer.install.firewall.settings" value="${installer.install.firewall.settings}" />
+                <filter token="installer.uninstall.firewall.settings" value="${installer.uninstall.firewall.settings}" />
+                <filter token="app.bootstrap.starterName" value="${app.bootstrap.starterName}" />
+                <filter token="app.bootstrap.installerName" value="${app.bootstrap.installerName}" />
+                
+            </filterset>
+        </copy>
+        <!-- ========================================================9990================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="990" />
+        </antcall>
+        <!-- ========================================================9991================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="991" />
+        </antcall>
+        <!-- ========================================================9992================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="992" />
+        </antcall>
+        <!-- ========================================================9993================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="993" />
+        </antcall>
+        <!-- ========================================================9994================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="994" />
+        </antcall>
+        <!-- ========================================================9995================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="995" />
+        </antcall>
+        <!-- ========================================================9996================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="996" />
+        </antcall>
+        <!-- ========================================================9997================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="997" />
+        </antcall>
+        <!-- ========================================================9998================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="998" />
+        </antcall>
+        <!-- ========================================================9999================================================== -->
+        <antcall target="prepareIndividualPortSetFiles">
+            <param name="portSetPrefix" value="999" />
+        </antcall>
+        <!-- ============================================================================================================== -->
+        <copy todir="${dir.build}/setup/etc" overwrite="true">
+            <fileset dir="${dir.etc}">
+                <include name="java.policy" />
+                <include name="log4j*" />
+                <include name="splash.jpg" />
+            </fileset>
+        </copy>
+        <copy todir="${dir.build}/setup" overwrite="true">
+            <fileset dir="${dir.kernel}">
+                <include name="ssl/**/*" />
+            </fileset>
+        </copy>
+        <copy tofile="${dir.dependencies}/000_infinity-kernel-core.jar" file="${dir.dist}/infinity-kernel-core.jar" overwrite="true" />
+        <copy tofile="${dir.dependencies}/001_infinity-kernel-commons.jar" file="${dir.dist}/infinity-kernel-commons.jar" overwrite="true" />
+        <copy tofile="${dir.dependencies}/002_infinity-kernel-facades.jar" file="${dir.dist}/infinity-kernel-facades.jar" overwrite="true" />
+        <copy todir="${dir.build}/setup/lib" overwrite="true">
+            <fileset dir="${dir.dependencies}">
+                <include name="**/*" />
+            </fileset>
+        </copy>
+        <copy todir="${dir.build}/setup/bin" overwrite="true" failonerror="false">
+            <fileset dir="${dir.library.wrapper}/bin">
+                <include name="wrapper-*" />
+            </fileset>
+            <fileset dir="lib/winrun4j">
+                <include name="RCEDIT.exe" />
+            </fileset>
+            <fileset dir="bin">
+                <include name="bare*" />
+                <include name="pv.exe" />
+            </fileset>
+        </copy>
+        <copy todir="${dir.build}/setup/dll" overwrite="true" failonerror="false">
+            <fileset dir="${dir.library.wrapper}/lib">
+                <include name="libwrapper-*" />
+                <include name="wrapper-*" />
+            </fileset>
+        </copy>
+    	<mkdir dir="${dir.build}/setup/modules"/>
+        <unzip dest="${dir.build}/setup/modules">
+        	<patternset>
+        		<include name="**/*" />
+        		<exclude name="MANIFEST.MNM" />
+        	</patternset>
+        	<fileset dir="${dir.mnm}">
+        		<include name="*.mnm" />
+        	</fileset>
+        </unzip>
+        <copy todir="${dir.build}/setup/modules" overwrite="true" failonerror="false">
+            <fileset dir="mnm">
+                <include name="**/*" />
+            	<include name=".keepthis" />
+                <exclude name="**/.git*" />
+            	<exclude name="*.mnm" />
+                <exclude name="PLACE_INSTALLABLE_MODULES_HERE" />
+            </fileset>
+        </copy>
+        <copy todir="${dir.build}/setup/app" overwrite="true" failonerror="false">
+            <fileset dir="app">
+                <include name="**/*" />
+                <exclude name="**/.git*" />
+            </fileset>
+        </copy>
+        <delete file="${dir.deploy}/infinity-nodeagent-${kernel.buildVersion}.zip" />
+    	<antcall target="prepare-deployment-properties" />
+		<property file="${dir.build}/deployment.properties" />
+    	<zip destfile="${dir.deploy}/infinity-nodeagent-${kernel.buildVersion}.zip">
+    		<zipfileset dir="${dir.build}/setup" prefix="">
+    			<include name="99**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="990x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="991x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="992x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="993x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="994x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="995x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="996x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="997x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="998x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup" prefix="999x">
+    			<include name="ssl/**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup/bin" prefix="bin">
+    			<include name="**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup/winrun4j" prefix="bin">
+    			<include name="**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup/dll" prefix="dll">
+    			<include name="**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup/etc" prefix="etc">
+    			<include name="**/*" />
+    			<exclude name="log4j.xml" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup/lib" prefix="lib">
+    			<include name="**/*" />
+    		</zipfileset>
+    		<zipfileset dir="${dir.build}/setup/modules" prefix="modules">
+    			<include name="**/*" />
+    		</zipfileset>
+    	</zip>
+    	<delete dir="${dir.runtime}" />
+		<mkdir dir="${dir.runtime}" />
+    	<unzip src="${dir.deploy}/infinity-nodeagent-${kernel.buildVersion}.zip" dest="${dir.runtime}" />
+    	<unzip src="${dir.tools}/jvm/jvm.zip" dest="${dir.runtime}/java" />
+    	<jar destfile="${dir.deploy}/infinity-nodeagent-${kernel.buildVersion}.car">
+    		<zipfileset dir="${dir.runtime}" prefix="">
+    			<include name="**/*" />
+    		</zipfileset>
+            <manifest>
+                <attribute name="Ddd-Version" value="${ddd.version}" />
+                <attribute name="Ddd-PackageId" value="${ddd.packageId}" />
+                <attribute name="Ddd-Description" value="${ddd.description}" />
+                <attribute name="Ddd-DeployingTime" value="${ddd.deployingTime}" />
+                <attribute name="Ddd-ActivationTime" value="${ddd.activationTime}" />
+                <attribute name="Ddd-ExpirationTime" value="${ddd.expirationTime}" />
+                <attribute name="Ddd-IgnoreEntries" value="${ddd.ignoreEntries}" />
+                <attribute name="Ddd-Scope" value="${ddd.scope}" />
+            </manifest>
+    	</jar>
+    	<copy file="${dir.deploy}/infinity-nodeagent-${kernel.buildVersion}.zip" tofile="${dir.dist}/infinity-nodeagent.zip" overwrite="true" preservelastmodified="true" />
+        <exec executable="${basedir}/tools/innosetup/iscc.exe" osfamily="windows">
+            <arg line="${dir.build}/nodeagent-base.iss" />
+        </exec>
+        <exec dir="${basedir}" executable="wine" osfamily="unix">
+            <arg line="${basedir}/tools/innosetup/ISCC.exe &quot;${dir.build}/nodeagent-base.iss&quot;" />
+            <!--
+            <arg line="${basedir}/tools/innosetup/Compil32.exe /CC &quot;${dir.build}/nodeagent-base.iss&quot;" />
+            -->
+        </exec>
+    	<copy file="${dir.deploy}/${installer.app.id}-${kernel.buildVersion}.exe" tofile="${dir.dist}/infinity-nodeagent.exe" overwrite="true" preservelastmodified="true" />
+        <!--
+        <delete dir="${dir.jvm}" failonerror="false" />
+        <delete dir="${dir.nodeagentzip}" failonerror="false" />
+        <delete file="${dir.build}/wrapper.exe" failonerror="false" />
+        <delete file="${dir.build}/wrapper.dll" failonerror="false" />
+        -->
+        <!--
+        <delete file="${dir.build}/nodeagent.iss" failonerror="false" />
+        -->
+    	<condition property="RUNTIME_BASE_DEFINED" value="false">
+    		<scriptcondition language="javascript">
+    			<![CDATA[
+    			var runtimeBase = java.lang.System.getenv("INFINITY_RUNTIME_BASE");
+    			if (runtimeBase != null && runtimeBase.length() > 0) {
+    				self.setValue(true);
+    			}
+    			]]>
+    		</scriptcondition>
+    	</condition>
+    	<antcall target="deployNodeAgentZipToRuntime" />
+    </target>
+	
+	<target name="deployNodeAgentZipToRuntime" if="RUNTIME_BASE_DEFINED">
+		<echo message="Deploying infinity-nodeagent.zip to following places:" />
+		<echo message="  » ${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-nodeagent.zip" />
+		<echo message="  » ${env.INFINITY_KERNEL_BASE}/../runtime/* (extracted)" />
+		<copy file="${dir.dist}/infinity-nodeagent.zip" tofile="${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-nodeagent.zip" failonerror="false" overwrite="true" />
+		<delete dir="${env.INFINITY_KERNEL_BASE}/../runtime" failonerror="false" />
+		<mkdir dir="${env.INFINITY_KERNEL_BASE}/../runtime" />
+		<unzip src="${dir.dist}/infinity-nodeagent.zip" dest="${env.INFINITY_KERNEL_BASE}/../runtime" overwrite="true" />
+		<delete dir="${env.INFINITY_RUNTIME_BASE}/lib" failonerror="false" />
+		<copy todir="${env.INFINITY_RUNTIME_BASE}" overwrite="true" failonerror="false">
+			<fileset dir="${env.INFINITY_KERNEL_BASE}/../runtime">
+				<include name="bin/**/*" />
+				<include name="dll/**/*" />
+				<include name="etc/**/*" />
+				<include name="lib/**/*" />
+			</fileset>
+		</copy>
+	</target>
+    <target name="buildAll">
+        <script language="javascript">
+            <![CDATA[
+            var project = self.getProject();
+            var workingDir = new java.io.File("src").getAbsoluteFile().getParentFile();
+            var workspaceDir = workingDir.getParentFile();
+            java.lang.System.out.println("workingDir: " + workingDir.getAbsolutePath());
+            java.lang.System.out.println("workspaceDir: " + workspaceDir.getAbsolutePath());
+            var filter = new java.io.FileFilter({
+                accept: function (f) {
+                    if (f.isDirectory()) {
+                        var doNotAutoBuild = new java.io.File(f, "DO_NOT_AUTO_BUILD");
+                        if (doNotAutoBuild.exists())
+                            return false;
+                        if (f.getName().equalsIgnoreCase("infinity-module-templatemodule"))
+                            return false;
+                        var buildFile = new java.io.File(f, "build.xml");
+                        var tmpDir = new java.io.File(f, "target/classes");
+                        return buildFile.exists() && tmpDir.exists() && tmpDir.isDirectory();
+                    }
+                    return false;
+                }
+            });
+            var projects = workspaceDir.listFiles(filter);
+            for (var i = 0; i<projects.length; i++) {
+                java.lang.System.out.println(projects[i].getName());
+                var antTask = project.createTask("ant");
+                antTask.setAntfile(new java.io.File(projects[i], "build.xml").getAbsolutePath());
+                antTask.setTarget("deployMnmModules");
+                antTask.setDir(projects[i]);
+                antTask.perform();
+            }
+	        ]]>
+        </script>
+    </target>
+	
+	<target name="package">
+		<script language="javascript">
+			<![CDATA[
+			var project = self.getProject();
+			var cpOrder = project.getProperty("maven.project.dependencies.versions");
+			var pathSeparator = java.io.File.pathSeparator;
+			var cpArray = cpOrder.split(pathSeparator);
+			var cpMap = new java.util.LinkedHashMap();
+			for (var i = 0; i < cpArray.length; i++) {
+				if (cpArray[i].indexOf(".jar") > 0) {
+					cpMap.put(cpArray[i], null);
+				}
+			}
+			var props = project.getProperties();
+			for (var i = props.keySet().iterator(); i.hasNext();) {
+				var k = i.next();
+				var v = props.get(k);
+				if (k.startsWith("maven.dependency.")) {
+					var j = k.indexOf(".", "maven.dependency.".length);
+					if (j > 0) {
+						var s = j + 1;
+						var e = k.indexOf(".jar.path");
+						var jarName = k.substring(s, e);
+						if (cpMap.containsKey(jarName)) {
+							cpMap.put(jarName, v);
+						}
+					}
+					
+				}
+			}
+			var buildDir = project.getProperty("project.build.directory");
+			var count = 0;
+			var manifestClassPath = new java.lang.StringBuilder();
+			var wrapperClassPath = new java.lang.StringBuilder();
+			var wrapperInitialIndex = 3;
+			var winrun4jClassPath = new java.lang.StringBuilder();
+			var winrun4jInitialIndex = 3;
+			var cmdClassPath = new java.lang.StringBuilder();
+			var shClassPath = new java.lang.StringBuilder();
+			for (var i = cpMap.keySet().iterator(); i.hasNext(); count++) {
+				var k = i.next();
+				var v = cpMap.get(k);
+				var decimalFormat = new java.text.DecimalFormat("000");
+				var orderId = decimalFormat.format(count);
+				////
+				var copyTask = project.createTask("copy");
+				var attrFile = new java.io.File(v);
+				var depsDir = new java.io.File(buildDir, "dependencies");
+				depsDir.mkdirs();
+				var orderedJarName = orderId + "_" + k;
+				var attrToFile = new java.io.File(depsDir, orderedJarName);
+				copyTask.setFile(attrFile);
+				copyTask.setTofile(attrToFile);
+				java.lang.System.out.println("Copying dependency #" + orderId + " from '" + attrFile.getAbsolutePath() + "' to '" + attrToFile.getName() + "'");
+				copyTask.perform();
+				////
+				if (count > 0)
+					manifestClassPath.append(' ');
+				manifestClassPath.append(orderedJarName);
+				////
+				if (count > 0)
+					wrapperClassPath.append('\n');
+				wrapperClassPath.append("wrapper.java.classpath.").append(java.lang.Integer.valueOf(wrapperInitialIndex + count)).append("=../lib/").append(orderedJarName);
+				////
+				if (count > 0)
+					winrun4jClassPath.append('\n');
+				winrun4jClassPath.append("classpath.").append(java.lang.Integer.valueOf(winrun4jInitialIndex + count)).append("=..\\lib\\").append(orderedJarName);
+				////
+				if (count > 0)
+					cmdClassPath.append(';');
+				cmdClassPath.append("..\\lib\\").append(orderedJarName);
+				////
+				if (count > 0)
+					shClassPath.append(':');
+				shClassPath.append("../lib/").append(orderedJarName);
+			}
+			project.setProperty("dir.dependencies", depsDir.getAbsolutePath());
+			project.setProperty("dependencies.classpath.wrapper", wrapperClassPath.toString());
+			project.setProperty("dependencies.classpath.winrun4j", winrun4jClassPath.toString());
+			project.setProperty("dependencies.classpath.cmd", cmdClassPath.toString());
+			project.setProperty("dependencies.classpath.sh", shClassPath.toString());
+			project.setProperty("dependencies.classpath.manifest", manifestClassPath.toString());
+			java.lang.System.out.println("Generated wrapper classpath setting is: \n" + wrapperClassPath.toString()); 
+			java.lang.System.out.println("Generated winrun4j classpath setting is: \n" + winrun4jClassPath.toString()); 
+			java.lang.System.out.println("Generated cmd classpath setting is: \n" + cmdClassPath.toString()); 
+			java.lang.System.out.println("Generated sh classpath setting is: \n" + shClassPath.toString());
+			java.lang.System.out.println("Generated manifest classpath setting is: \n" + manifestClassPath.toString());
+			]]>
+		</script>
+		<antcall target="packaging-setup-base"></antcall>
+		<antcall target="deploy-jars-to-runtime"></antcall>
+		<!--
+		<antcall target="packageing"></antcall>
+		-->
+	</target>
+	
+	<target name="prepare-deployment-properties">
+		<script language="javascript">
+            <![CDATA[
+            var project = self.getProject();
+			var generatedPackageId = java.util.UUID.randomUUID().toString();
+			project.setProperty("DDD_GENERATED_PACKAGE_ID", generatedPackageId);
+			var deploymentProperties = new java.util.Properties();
+			var baseDir = project.getProperty("basedir");
+			java.lang.System.out.println("===========> baseDir=" + baseDir);
+			var deploymentPropertiesFile = new java.io.File(baseDir, "deployment.properties");
+			java.lang.System.out.println("===========> deploymentPropertiesFile=" + deploymentPropertiesFile);
+			var deploymentPropertiesIs = new java.io.FileInputStream(deploymentPropertiesFile);
+			java.lang.System.out.println("===========> deploymentPropertiesIs=" + deploymentPropertiesIs);
+			deploymentProperties.load(deploymentPropertiesIs);
+			var now = new java.util.Date();
+			var sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			var deployingTime = deploymentProperties.getProperty("ddd.deployingTime", "");
+			var activationTime = deploymentProperties.getProperty("ddd.activationTime", deployingTime);
+			var expirationTime = deploymentProperties.getProperty("ddd.expirationTime", "2100-01-01 00:00:00");
+			if ("(undefined)".equals(deployingTime))
+				deployingTime = sdf.format(now);
+			if ("(undefined)".equals(activationTime))
+				activationTime = deployingTime;
+			if ("(undefined)".equals(expirationTime))
+				expirationTime = "2100-01-01 00:00:00"
+			java.lang.System.out.println("===========> deployingTime=" + deployingTime);
+			java.lang.System.out.println("===========> activationTime=" + activationTime);
+			java.lang.System.out.println("===========> expirationTime=" + expirationTime);
+			project.setProperty("DDD_PROVIDED_DEPLOYING_TIME", deployingTime);
+			project.setProperty("DDD_PROVIDED_ACTIVATION_TIME", activationTime);
+			project.setProperty("DDD_PROVIDED_EXPIRATION_TIME", expirationTime);
+			var description = deploymentProperties.getProperty("ddd.description", "(undefined)");
+			if ("(undefined)".equals(description))
+				description = "Version " + project.getProperty("kernel.buildVersion") + " released.";
+			description = java.net.URLEncoder.encode(description, "UTF-8");
+			project.setProperty("DDD_PROVIDED_DESCRIPTION", description);
+			var ignoreEntries = deploymentProperties.getProperty("ddd.ignoreEntries", "(undefined)");
+			if ("(undefined)".equals(ignoreEntries))
+				ignoreEntries = "";
+			ignoreEntries = java.net.URLEncoder.encode(ignoreEntries, "UTF-8");
+			project.setProperty("DDD_PROVIDED_IGNORE_ENTRIES", ignoreEntries);
+			var scope = deploymentProperties.getProperty("ddd.scope", "(undefined)");
+			scope = java.net.URLEncoder.encode(scope, "UTF-8");
+			project.setProperty("DDD_PROVIDED_SCOPE", scope);
+			var version = deploymentProperties.getProperty("ddd.version", "(undefined)");
+			if ("(undefined)".equals(version))
+				version = project.getProperty("kernel.buildVersion");
+			version = java.net.URLEncoder.encode(version, "UTF-8");
+			project.setProperty("DDD_PROVIDED_VERSION", version);
+			]]>
+		</script>
+		<copy todir="${dir.build}" failonerror="true">
+			<fileset dir="${basedir}">
+				<include name="deployment.properties" />
+			</fileset>
+            <filterset begintoken="@" endtoken="@">
+                <filter token="DDD_PROVIDED_DEPLOYING_TIME" value="${DDD_PROVIDED_DEPLOYING_TIME}" />
+                <filter token="DDD_PROVIDED_ACTIVATION_TIME" value="${DDD_PROVIDED_ACTIVATION_TIME}" />
+                <filter token="DDD_PROVIDED_EXPIRATION_TIME" value="${DDD_PROVIDED_EXPIRATION_TIME}" />
+                <filter token="DDD_PROVIDED_DESCRIPTION" value="${DDD_PROVIDED_DESCRIPTION}" />
+                <filter token="DDD_PROVIDED_IGNORE_ENTRIES" value="${DDD_PROVIDED_IGNORE_ENTRIES}" />
+                <filter token="DDD_PROVIDED_VERSION" value="${DDD_PROVIDED_VERSION}" />
+                <filter token="DDD_PROVIDED_SCOPE" value="${DDD_PROVIDED_SCOPE}" />
+                <filter token="DDD_GENERATED_PACKAGE_ID" value="${DDD_GENERATED_PACKAGE_ID}" />
+			</filterset>
+		</copy>
+        <replaceregexp match="(ddd.packageId\s*=\s*).*" replace="\1${DDD_GENERATED_PACKAGE_ID}" flags="g" byline="true">
+            <fileset dir="${dir.build}">
+                <include name="deployment.properties" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="(ddd.deployingTime\s*=\s*).*" replace="\1${DDD_PROVIDED_DEPLOYING_TIME}" flags="g" byline="true">
+            <fileset dir="${dir.build}">
+                <include name="deployment.properties" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="(ddd.activationTime\s*=\s*).*" replace="\1${DDD_PROVIDED_ACTIVATION_TIME}" flags="g" byline="true">
+            <fileset dir="${dir.build}">
+                <include name="deployment.properties" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="(ddd.expirationTime\s*=\s*).*" replace="\1${DDD_PROVIDED_EXPIRATION_TIME}" flags="g" byline="true">
+            <fileset dir="${dir.build}">
+                <include name="deployment.properties" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="(ddd.version\s*=\s*).*" replace="\1${DDD_PROVIDED_VERSION}" flags="g" byline="true">
+            <fileset dir="${dir.build}">
+                <include name="deployment.properties" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="(ddd.description\s*=\s*).*" replace="\1${DDD_PROVIDED_DESCRIPTION}" flags="g" byline="true">
+            <fileset dir="${dir.build}">
+                <include name="deployment.properties" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="(ddd.ignoreEntries\s*=\s*).*" replace="\1${DDD_PROVIDED_IGNORE_ENTRIES}" flags="g" byline="true">
+            <fileset dir="${dir.build}">
+                <include name="deployment.properties" />
+            </fileset>
+        </replaceregexp>
+        <replaceregexp match="(ddd.scope\s*=\s*).*" replace="\1${DDD_PROVIDED_SCOPE}" flags="g" byline="true">
+            <fileset dir="${dir.build}">
+                <include name="deployment.properties" />
+            </fileset>
+        </replaceregexp>
+	</target>
+
+</project>

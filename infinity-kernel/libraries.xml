@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="libraries" default="">
+
+	<property name="dir.library.ant" value="lib/ant" />
+	<property name="dir.library.commons-codec" value="lib/commons-codec" />
+	<property name="dir.library.commons-logging" value="lib/commons-logging" />
+	<property name="dir.library.commons-vfs" value="lib/commons-vfs" />
+	<property name="dir.library.commons-digester" value="lib/commons-digester" />
+	<property name="dir.library.commons-beanutils" value="lib/commons-beanutils" />	
+	<property name="dir.library.javaee" value="lib/javaee" />
+	<property name="dir.library.jetty" value="lib/jetty" />
+	<property name="dir.library.log4j" value="lib/log4j" />
+	<property name="dir.library.mx4j" value="lib/mx4j" />
+	<property name="dir.library.openlaszlo" value="lib/openlaszlo" />
+	<property name="dir.library.skinlf" value="lib/skinlf" />
+	<property name="dir.library.slf4j" value="lib/slf4j" />
+	<property name="dir.library.spring" value="lib/spring" />
+	<property name="dir.library.wrapper" value="lib/wrapper" />
+	<property name="dir.library.xmlrpc" value="lib/xmlrpc" />
+	<property name="dir.library.hibernate" value="lib/hibernate" />
+	<property name="dir.library.commons-collections" value="lib/commons-collections" />
+	<property name="dir.library.dom4j" value="lib/dom4j" />
+	<property name="dir.library.derby" value="lib/derby" />
+	<property name="dir.library.des" value="lib/des" />
+	<property name="dir.library.multipartrequest" value="lib/multipartrequest" />
+	<property name="dir.library.bsf" value="lib/bsf" />
+	<property name="dir.library.rhino" value="lib/rhino" />
+	<property name="dir.library.svnant" value="lib/svnant" />
+	<property name="dir.library.pgjdbc" value="lib/pgjdbc" />
+	<property name="dir.library.lzma" value="lib/lzma" />
+	<property name="dir.library.tftp4java" value="lib/tftp4java" />
+	<property name="dir.library.activemq" value="lib/activemq" />
+	<property name="dir.library.sigar" value="lib/sigar" />
+	<property name="dir.library.javamail" value="lib/javamail" />
+	<property name="dir.library.jug" value="lib/jug" />
+	<property name="dir.library.jasperreports" value="lib/jasperreports" />
+	<property name="dir.library.itext" value="lib/itext" />
+	<property name="dir.library.poi" value="lib/poi" />
+	<property name="dir.library.jfreechart" value="lib/jfreechart" />
+	<property name="dir.library.axis2" value="lib/axis2" />
+	<property name="dir.library.omnibus" value="lib/omnibus" />
+	<property name="dir.library.angularjs" value="lib/angularjs" />
+	<property name="dir.library.imsconnect" value="lib/imsconnect" />
+	<property name="dir.library.commons-net" value="lib/commons-net" />
+	<property name="dir.library.jsch" value="lib/jsch" />
+	<property name="dir.library.sigar" value="lib/sigar" />
+	<property name="dir.library.json" value="lib/json" />
+	<property name="dir.library.eclipse-help" value="lib/eclipse-help" />
+	<property name="dir.library.gson" value="lib/gson" />
+	<property name="dir.library.novell" value="lib/novell" />
+	<property name="dir.library.maven" value="lib/maven" />
+</project>

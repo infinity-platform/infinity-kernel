@@ -1,0 +1,661 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.iisigroup.infinity</groupId>
+    <artifactId>infinity-kernel</artifactId>
+    <version>8.1.0.2242</version>
+    <packaging>jar</packaging>
+
+    <name>infinity-kernel</name>
+    <url>http://maven.apache.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <build.number>${buildNumber}</build.number>
+        <project.birthday>2016-05-08 10:54:00.000</project.birthday>
+    </properties>
+
+    <scm>
+        <connection>scm:git:https://none</connection>
+        <developerConnection>scm:git:https://none</developerConnection>
+        <url>scm:git:https://none</url>
+    </scm>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>infinity-kernel-core</groupId>
+            <artifactId>infinity-kernel-core.jar</artifactId>
+            <version>infinity-kernel-core.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/dist/infinity-kernel-core.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>infinity-kernel-commons</groupId>
+            <artifactId>infinity-kernel-commons.jar</artifactId>
+            <version>infinity-kernel-commons.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/dist/infinity-kernel-commons.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>infinity-kernel-facades</groupId>
+            <artifactId>infinity-kernel-facades.jar</artifactId>
+            <version>infinity-kernel-facades.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/dist/infinity-kernel-facades.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>subscription</groupId>
+            <artifactId>subscription.jar</artifactId>
+            <version>subscription.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/eternity/subscription.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jfxrt-patch-20151029</groupId>
+            <artifactId>jfxrt-patch-20151029.jar</artifactId>
+            <version>jfxrt-patch-20151029.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/javafx-patches/jfxrt-patch-20151029.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jfxrt</groupId>
+            <artifactId>jfxrt.jar</artifactId>
+            <version>jfxrt.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/javafx-patches/jfxrt.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant.jar</artifactId>
+            <version>ant.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/ant/ant.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0-0.9.1.2.jar</artifactId>
+            <version>c3p0-0.9.1.2.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/c3p0/c3p0-0.9.1.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils-1.8.3.jar</artifactId>
+            <version>commons-beanutils-1.8.3.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-beanutils/commons-beanutils-1.8.3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec-1.3.jar</artifactId>
+            <version>commons-codec-1.3.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-codec/commons-codec-1.3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-collections</groupId>
+            <artifactId>commons-collections-3.1.jar</artifactId>
+            <version>commons-collections-3.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-collections/commons-collections-3.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload-1.2.1.jar</artifactId>
+            <version>commons-fileupload-1.2.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-fileupload/commons-fileupload-1.2.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient-3.1.jar</artifactId>
+            <version>commons-httpclient-3.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-httpclient/commons-httpclient-3.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io-1.4.jar</artifactId>
+            <version>commons-io-1.4.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-io/commons-io-1.4.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang-2.3.jar</artifactId>
+            <version>commons-lang-2.3.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-lang/commons-lang-2.3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging-1.1.jar</artifactId>
+            <version>commons-logging-1.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-logging/commons-logging-1.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>dom4j</groupId>
+            <artifactId>dom4j-1.6.1.jar</artifactId>
+            <version>dom4j-1.6.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/dom4j/dom4j-1.6.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>guava</groupId>
+            <artifactId>guava-17.0.jar</artifactId>
+            <version>guava-17.0.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/guava/guava-17.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>h2</groupId>
+            <artifactId>h2-1.4.200.jar</artifactId>
+            <version>h2-1.4.200.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/h2/h2-1.4.200.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>ibranch</groupId>
+            <artifactId>g-base.jar</artifactId>
+            <version>g-base.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/ibranch/g-base.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>ibranch</groupId>
+            <artifactId>ibranch_base_m.jar</artifactId>
+            <version>ibranch_base_m.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/ibranch/ibranch_base_m.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jcl2</groupId>
+            <artifactId>jcl-core-2.8.jar</artifactId>
+            <version>jcl-core-2.8.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jcl2/jcl-core-2.8.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jcl2</groupId>
+            <artifactId>cglib-nodep-2.2.jar</artifactId>
+            <version>cglib-nodep-2.2.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jcl2/cglib-nodep-2.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jcl2</groupId>
+            <artifactId>hamcrest-core-1.3.jar</artifactId>
+            <version>hamcrest-core-1.3.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jcl2/hamcrest-core-1.3.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jcl2</groupId>
+            <artifactId>object-cloner-0.1.jar</artifactId>
+            <version>object-cloner-0.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jcl2/object-cloner-0.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jcl2</groupId>
+            <artifactId>objenesis-2.1.jar</artifactId>
+            <version>objenesis-2.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jcl2/objenesis-2.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jdom</groupId>
+            <artifactId>jdom.jar</artifactId>
+            <version>jdom.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jdom/jdom.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>core-3.1.1.jar</artifactId>
+            <version>core-3.1.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jetty/core-3.1.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>jetty-6.1.26.jar</artifactId>
+            <version>jetty-6.1.26.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jetty/jetty-6.1.26.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>jetty-management-6.1.26.jar</artifactId>
+            <version>jetty-management-6.1.26.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jetty/jetty-management-6.1.26.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>jetty-naming-6.1.26.jar</artifactId>
+            <version>jetty-naming-6.1.26.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jetty/jetty-naming-6.1.26.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>jetty-plus-6.1.26.jar</artifactId>
+            <version>jetty-plus-6.1.26.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jetty/jetty-plus-6.1.26.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jetty</groupId>
+            <artifactId>jetty-util-6.1.26.jar</artifactId>
+            <version>jetty-util-6.1.26.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jetty/jetty-util-6.1.26.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>json</groupId>
+            <artifactId>javax.json-1.0.4.jar</artifactId>
+            <version>javax.json-1.0.4.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/json/javax.json-1.0.4.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j-core-2.17.2.jar</artifactId>
+            <version>log4j-core-2.17.2.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/log4j2/log4j-core-2.17.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j-api-2.17.2.jar</artifactId>
+            <version>log4j-api-2.17.2.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/log4j2/log4j-api-2.17.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j-slf4j-impl-2.17.2.jar</artifactId>
+            <version>log4j-slf4j-impl-2.17.2.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/log4j2/log4j-slf4j-impl-2.17.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>mx4j</groupId>
+            <artifactId>mx4j-tools.jar</artifactId>
+            <version>mx4j-tools.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/mx4j/mx4j-tools.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>puremvc</groupId>
+            <artifactId>PureMVC_Java_MultiCore-1.0.8.jar</artifactId>
+            <version>PureMVC_Java_MultiCore-1.0.8.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/puremvc/PureMVC_Java_MultiCore_1_0_8/bin/PureMVC_Java_MultiCore-1.0.8.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>slf4j</groupId>
+            <artifactId>slf4j-api-1.7.36.jar</artifactId>
+            <version>slf4j-api-1.7.36.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/slf4j/slf4j-api-1.7.36.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>spring</groupId>
+            <artifactId>spring-beans-5.2.9.RELEASE.jar</artifactId>
+            <version>spring-beans-5.2.9.RELEASE.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/spring/spring-beans-5.2.9.RELEASE.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>spring</groupId>
+            <artifactId>spring-core-5.2.9.RELEASE.jar</artifactId>
+            <version>spring-core-5.2.9.RELEASE.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/spring/spring-core-5.2.9.RELEASE.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>winrun4j</groupId>
+            <artifactId>WinRun4J.jar</artifactId>
+            <version>WinRun4J.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/winrun4j/WinRun4J.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>wrapper</groupId>
+            <artifactId>wrapper.jar</artifactId>
+            <version>wrapper.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/wrapper/wrapper.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>xmlrpc</groupId>
+            <artifactId>ws-commons-util-1.0.2.jar</artifactId>
+            <version>ws-commons-util-1.0.2.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/xmlrpc/ws-commons-util-1.0.2.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>xmlrpc</groupId>
+            <artifactId>xmlrpc-client-3.1.jar</artifactId>
+            <version>xmlrpc-client-3.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/xmlrpc/xmlrpc-client-3.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>xmlrpc</groupId>
+            <artifactId>xmlrpc-common-3.1.jar</artifactId>
+            <version>xmlrpc-common-3.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/xmlrpc/xmlrpc-common-3.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>xmlrpc</groupId>
+            <artifactId>xmlrpc-server-3.1.jar</artifactId>
+            <version>xmlrpc-server-3.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/xmlrpc/xmlrpc-server-3.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>multipartrequest</groupId>
+            <artifactId>multipartrequest.jar</artifactId>
+            <version>multipartrequest.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/multipartrequest/multipartrequest.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>dwr</groupId>
+            <artifactId>dwr-2.0.4.jar</artifactId>
+            <version>dwr-2.0.4.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/dwr/dwr-2.0.4.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>skinlf</groupId>
+            <artifactId>nativeskin.jar</artifactId>
+            <version>nativeskin.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/skinlf/nativeskin.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>skinlf</groupId>
+            <artifactId>skinlf.jar</artifactId>
+            <version>skinlf.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/skinlf/skinlf.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>javafx-dialogs</groupId>
+            <artifactId>javafx-dialogs-0.0.4.jar</artifactId>
+            <version>javafx-dialogs-0.0.4.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/javafx-dialogs/javafx-dialogs-0.0.4.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jna</groupId>
+            <artifactId>jna-4.2.1.jar</artifactId>
+            <version>jna-4.2.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jna/jna-4.2.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jna</groupId>
+            <artifactId>jna-platform-4.2.1.jar</artifactId>
+            <version>jna-platform-4.2.1.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jna/jna-platform-4.2.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jug</groupId>
+            <artifactId>jug-lgpl-2.0.0.jar</artifactId>
+            <version>jug-lgpl-2.0.0.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jug/jug-lgpl-2.0.0.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>javamail</groupId>
+            <artifactId>javax.mail.jar</artifactId>
+            <version>javax.mail.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/javamail/javax.mail.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>javaee</groupId>
+            <artifactId>javaee.jar</artifactId>
+            <version>javaee.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/javaee/javaee.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>bonecp</groupId>
+            <artifactId>bonecp-0.8.0.RELEASE.jar</artifactId>
+            <version>bonecp-0.8.0.RELEASE.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/bonecp/bonecp-0.8.0.RELEASE.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>netty</groupId>
+            <artifactId>netty-all-4.1.14.Final.jar</artifactId>
+            <version>netty-all-4.1.14.Final.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/netty/netty-all-4.1.14.Final.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>commons-csv</groupId>
+            <artifactId>commons-csv-1.7.jar</artifactId>
+            <version>commons-csv-1.7.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/commons-csv/commons-csv-1.7.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jackson</groupId>
+            <artifactId>jackson-core-2.9.9.jar</artifactId>
+            <version>jackson-core-2.9.9.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jackson/jackson-core-2.9.9.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jackson</groupId>
+            <artifactId>jackson-annotations-2.9.9.jar</artifactId>
+            <version>jackson-annotations-2.9.9.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jackson/jackson-annotations-2.9.9.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>jackson</groupId>
+            <artifactId>jackson-databind-2.9.9.3.jar</artifactId>
+            <version>jackson-databind-2.9.9.3.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/jackson/jackson-databind-2.9.9.3.jar</systemPath>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>buildnumber-maven-plugin</artifactId>
+                <version>1.4</version>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>create</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <doCheck>false</doCheck>
+                    <doUpdate>false</doUpdate>
+                    <shortRevisionLength>5</shortRevisionLength>
+                    <format>{0,date,yyyyMMddHHmmss}</format>
+                    <items>
+                        <item>timestamp</item>
+                    </items>
+                    <revisionOnScmFailure>
+                    </revisionOnScmFailure>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.5.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                    <execution>
+                        <id>clean</id>
+                        <phase>clean</phase>
+                        <configuration>
+                            <target>
+                                <ant antfile="build.xml" target="clean" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <script language="javascript">
+                                    <![CDATA[
+                                    var project = self.getProject();
+                                    var version = project.getProperty("project.version");
+                                    var versionParts = version.split("\.");
+                                    var versionMajor = "";
+                                    var versionMinor = "";
+                                    var versionRelease = "";
+                                    var versionBuild = "";
+                                    var versionCustomization = "";
+                                    for (i = 0; i < versionParts.length; i++) {
+                                        if (i == 0) {
+                                            versionMajor = versionParts[i];
+                                        } else if (i == 1) {
+                                            versionMinor = versionParts[i];
+                                        } else if (i == 2) {
+                                            versionRelease = versionParts[i];
+                                        } else if (i == 3) {
+                                            versionBuild = versionParts[i];
+                                        } else if (i == 4) {
+                                            versionCustomization = versionParts[i];
+                                        }
+                                    }
+                                    var kernelVersion = versionMajor + "." + versionMinor + "." + versionRelease + "." + versionBuild;
+                                    var kernelBuild = project.getProperty("buildNumber");
+                                    var kernelBuildVersion = kernelVersion + "." + kernelBuild;
+                                    if (versionCustomization) {
+                                    	kernelBuildVersion = kernelBuildVersion + "." + versionCustomization;
+                                    }
+									////
+                                    var sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+                                    var sdf2 = new java.text.SimpleDateFormat("yyyyMMddHHmmss");
+                                    var projectBirthday = project.getProperty("project.birthday");
+									var birthday = sdf.parse(projectBirthday);
+									var now = sdf2.parse(kernelBuild);
+									var age = now.getTime() - birthday.getTime();
+									var msInADay = age % 86400000;
+									var daysFromBirthday = ((age - msInADay) / 86400000).toFixed(0);
+									var msInAMinute = msInADay % 60000;
+									var minutesInADay = ((msInADay - msInAMinute) / 60000).toFixed(0);
+									if (versionBuild == null || versionBuild.length() == 0 || java.lang.Integer.parseInt(versionBuild) >= 0) {
+										versionBuild = daysFromBirthday;
+	                                    kernelVersion = versionMajor + "." + versionMinor + "." + versionRelease + "." + versionBuild;
+	                                    if (versionCustomization) {
+	                                    	kernelBuildVersion = kernelVersion + "." + versionCustomization;
+	                                    } else {
+		                                    kernelBuildVersion = kernelVersion + "." + minutesInADay + "." + msInAMinute;
+	                                    }
+									}
+									java.lang.System.out.println("--------> project.version = " + version);
+									java.lang.System.out.println("--------> project.birthday = " + projectBirthday);
+									java.lang.System.out.println("--------> now = " + sdf.format(now));
+									java.lang.System.out.println("--------> age = " + age);
+									java.lang.System.out.println("--------> days from birthday = " + daysFromBirthday);
+									java.lang.System.out.println("--------> minutes in a day = " + minutesInADay);
+									java.lang.System.out.println("--------> ms in a minute = " + msInAMinute);
+									////
+                                    project.setProperty("version.major", versionMajor);
+                                    project.setProperty("version.minor", versionMinor);
+                                    project.setProperty("version.release", versionRelease);
+                                    project.setProperty("version.build", versionBuild);
+                                    project.setProperty("kernel.version", kernelVersion);
+                                    project.setProperty("kernel.build", kernelBuild);
+                                    project.setProperty("kernel.buildVersion", kernelBuildVersion);
+                                    project.setProperty("version.buildNumber", kernelBuild);
+                                    project.setProperty("version.customization", versionCustomization);
+                                    ]]>
+                                </script>
+                                <echo message="Packaging ${project.artifactId} and tagging version to: ${project.version}" />
+                                <echo message="Auto updating property 'version.major' in build.properties to '${version.major}'" />
+                                <replaceregexp match="version.major=.*" replace="version.major=${version.major}" flags="g" byline="true">
+                                    <fileset dir="${project.basedir}">
+                                        <include name="build.properties" />
+                                    </fileset>
+                                </replaceregexp>
+                                <echo message="Auto updating property 'version.minor' in build.properties to '${version.minor}'" />
+                                <replaceregexp match="version.minor=.*" replace="version.minor=${version.minor}" flags="g" byline="true">
+                                    <fileset dir="${project.basedir}">
+                                        <include name="build.properties" />
+                                    </fileset>
+                                </replaceregexp>
+                                <echo message="Auto updating property 'version.release' in build.properties to '${version.release}'" />
+                                <replaceregexp match="version.release=.*" replace="version.release=${version.release}" flags="g" byline="true">
+                                    <fileset dir="${project.basedir}">
+                                        <include name="build.properties" />
+                                    </fileset>
+                                </replaceregexp>
+                                <echo message="Auto updating property 'version.build' in build.properties to '${version.build}'" />
+                                <replaceregexp match="version.build=.*" replace="version.build=${version.build}" flags="g" byline="true">
+                                    <fileset dir="${project.basedir}">
+                                        <include name="build.properties" />
+                                    </fileset>
+                                </replaceregexp>
+                                <echo message="Auto updating property 'version.customization' in build.properties to '${version.customization}'" />
+                                <replaceregexp match="version.customization=.*" replace="version.customization=${version.customization}" flags="g" byline="true">
+                                    <fileset dir="${project.basedir}">
+                                        <include name="build.properties" />
+                                    </fileset>
+                                </replaceregexp>
+                                <echo message="Auto updating property 'version.buildNumber' in build.properties to '${version.buildNumber}'" />
+                                <replaceregexp match="version.buildNumber=.*" replace="version.customization=${version.buildNumber}" flags="g" byline="true">
+                                    <fileset dir="${project.basedir}">
+                                        <include name="build.properties" />
+                                    </fileset>
+                                </replaceregexp>
+                                <echo message="Auto updating property 'app.version' in build.properties to '${kernel.buildVersion}'" />
+                                <replaceregexp match="app.version=.*" replace="app.version=${kernel.buildVersion}" flags="g" byline="true">
+                                    <fileset dir="${project.basedir}">
+                                        <include name="build.properties" />
+                                    </fileset>
+                                </replaceregexp>
+                                <ant antfile="build.xml" target="package" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

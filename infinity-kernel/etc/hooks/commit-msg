@@ -1,0 +1,82 @@
+#!/bin/bash
+#
+# An example hook script to check the commit log message.
+# Called by "git commit" with one argument, the name of the file
+# that has the commit message.  The hook should exit with non-zero
+# status after issuing an appropriate message if it wants to stop the
+# commit.  The hook is allowed to edit the commit message file.
+#
+# To enable this hook, rename this file to "commit-msg".
+
+# Uncomment the below to add a Signed-off-by line to the message.
+# Doing this in a hook is a bad idea in general, but the prepare-commit-msg
+# hook is more suited to it.
+#
+# SOB=$(git var GIT_AUTHOR_IDENT | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+# grep -qs "^$SOB" "$1" || echo "$SOB" >> "$1"
+
+# This example catches duplicate Signed-off-by lines.
+
+#test "" = "$(grep '^Signed-off-by: ' "$1" |
+#	 sort | uniq -c | sed -e '/^[ 	]*1[ 	]/d')" || {
+#	echo >&2 Duplicate Signed-off-by lines.
+#	exit 1
+#}
+####
+####
+####
+if [ "$ALPG_HOME" == '' ]; then
+	echo "ERROR: You must run 'setenv' to enable Alprogrammer development environment settings before committing anything!" 
+	exit 4
+fi
+if [ -x $ALPG_BIN/git-commit-checker ] && [[ ! "$0" =~ ^.*git-commit-checker$ ]]; then
+	SRCSHA=`shasum $ALPG_BIN/git-commit-checker|awk '{print $1}'`
+	TARSHA=`shasum $0|awk '{print $1}'`
+	if [ "$SRCSHA" != "$TARSHA" ]; then
+		cp -pf $ALPG_BIN/git-commit-checker $0
+		echo "INFO: Commit hook updated."
+	fi
+	exec $ALPG_BIN/git-commit-checker $*
+else
+	####
+	#### Retrive Redmine Ticket# from commit messaage
+	####
+	MESSAGE=`cat $1`
+	if [[ $MESSAGE =~ ^\Merge[[:space:]]remote-tracking[[:space:]]branch ]]; then
+		exit 0
+	fi
+	if [[ $MESSAGE =~ ^\Merge[[:space:]]branch ]]; then
+                exit 0
+        fi
+	if [[ $MESSAGE =~ ^\[refs[[:space:]]#([0-9]+)(.[0-9][0-9][0-9])?\](\[[^\]\[]+\])*[[:space:]][^-].* ]]; then
+		TICKET_NO=${BASH_REMATCH[1]}
+		echo "Checking ticket #$TICKET_NO status..."
+	else
+		echo "Commit message doesn't comply with the rule: '[refs #ISSUE_NUMBER(.REDO_COUNTER)][TAG1][TAG2]... MESSAGE THAT DOES NOT HAVE LEADING MINUS(-)'"
+		exit 1
+	fi
+	####
+	#### Locating checkcommitstatus or psql
+	####
+	CHECKCOMMITSTATUS=`which checkcommitstatus 2> /dev/null`
+	if [ "$CHECKCOMMITSTATUS" == '' ]; then
+        echo "Cannot find the neither 'checkcommitstatus' nor 'psql' in PATH!"
+        exit 2
+	fi
+	####
+	#### Searching ticket
+	####
+    if [ "$CHECKCOMMITSTATUS" != '' ]; then
+        checkcommitstatus $TICKET_NO
+        CHECK_RESUT=$?
+		if [ "$CHECK_RESUT" != '0' ]; then
+			echo "No matched ticket #$TICKET_NO with status 'ASSIGNED' could be found!"
+			exit 3
+		else
+			echo "Committing changes to ticket #$TICKET_NO"
+		fi
+	fi
+	####
+	####
+	####
+fi

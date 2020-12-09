@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+
+
+	<!-- This web.xml format file is an override file that is applied to the 
+		test webapp AFTER it has been configured by the default descriptor and the 
+		WEB-INF/web.xml descriptor -->
+
+	<!-- Add or override context init parameter -->
+	<!-- <context-param> <param-name>context-override-example</param-name> <param-value>a 
+		context value</param-value> </context-param> -->
+
+	<servlet>
+		<description><![CDATA[This is XML-RPC Servlet for NodeAgent]]></description>
+		<display-name>NodeAgent XML-RPC Servlet</display-name>
+		<servlet-name>nodeAgentXmlRpcServlet</servlet-name>
+		<servlet-class>com.iisigroup.infinity.kernel.nodeagent.xmlrpc.NodeAgentXmlRpcServlet</servlet-class>
+		<init-param>
+			<description>
+				<![CDATA[Sets, whether the servlet supports vendor extensions for XML-RPC.]]>
+			</description>
+			<param-name>enabledForExtensions</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		<!--
+		<init-param>
+			<param-name>enabledForExceptions</param-name>
+			<param-value>true</param-value>
+		</init-param>
+		-->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>nodeAgentXmlRpcServlet</servlet-name>
+		<url-pattern>/xmlrpc/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>nodeAgentXmlRpcServlet</servlet-name>
+		<url-pattern>/xmlrpc</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<display-name>DWR Servlet</display-name>
+		<servlet-name>dwr-invoker</servlet-name>
+		<servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+		<init-param>
+			<param-name>debug</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<param-name>logLevel</param-name>
+			<param-value>WARN</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>dwr-invoker</servlet-name>
+		<url-pattern>/dwr/*</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>default.html</welcome-file>
+		<welcome-file>default.htm</welcome-file>
+		<welcome-file>default.jsp</welcome-file>
+	</welcome-file-list>
+	
+	<servlet>
+		<description></description>
+		<display-name>Snoop</display-name>
+		<servlet-name>snoop</servlet-name>
+		<servlet-class>com.iisigroup.infinity.kernel.nodeagent.NodeAgentSnoopServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>snoop</servlet-name>
+		<url-pattern>/snoop/*</url-pattern>
+	</servlet-mapping>
+
+</web-app>
+
+

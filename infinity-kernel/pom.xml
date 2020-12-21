@@ -3,7 +3,7 @@
 
     <groupId>com.iisigroup.infinity</groupId>
     <artifactId>infinity-kernel</artifactId>
-    <version>8.1.0.1681</version>
+    <version>8.1.0.1686</version>
     <packaging>jar</packaging>
 
     <name>infinity-kernel</name>
@@ -48,6 +48,13 @@
             <version>infinity-kernel-facades.jar</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/dist/infinity-kernel-facades.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>subscription</groupId>
+            <artifactId>subscription.jar</artifactId>
+            <version>subscription.jar</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/lib/eternity/subscription.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>jfxrt-patch-20151029</groupId>

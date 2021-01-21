@@ -534,21 +534,23 @@
         <exec executable="${basedir}/lib/winrun4j/RCEDIT.exe" osfamily="windows">
             <arg line="/I ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
         </exec>
-        <exec dir="${basedir}" executable="wine" osfamily="unix">
+        <exec dir="${basedir}" executable="wine" os="linux">
             <arg line="${basedir}/lib/winrun4j/RCEDIT.exe /I ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
         </exec>
         <copy file="bin/nodeagent64.exe" tofile="${dir.build}/setup/winrun4j/nodeagent64-${portSetPrefix}x.exe" />
         <exec executable="${basedir}/lib/winrun4j/RCEDIT64.exe" osfamily="windows">
             <arg line="/I ${dir.build}/setup/winrun4j/nodeagent64-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
         </exec>
-        <exec dir="${basedir}" executable="wine" osfamily="unix">
+    	<!--
+        <exec dir="${basedir}" executable="wine" os="linux">
             <arg line="${basedir}/lib/winrun4j/RCEDIT64.exe /I ${dir.build}/setup/winrun4j/nodeagent64-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
         </exec>
+        -->
         <!--
         <exec executable="${basedir}/lib/winrun4j/RCEDIT.exe" osfamily="windows">
             <arg line="/N ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.ini" />
         </exec>
-        <exec dir="${basedir}" executable="wine" osfamily="unix">
+        <exec dir="${basedir}" executable="wine" os="linux">
             <arg line="${basedir}/lib/winrun4j/RCEDIT.exe /N ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.exe ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.ini" />
         </exec>
         -->
@@ -601,21 +603,21 @@
         <exec executable="${basedir}/lib/winrun4j/RCEDIT.exe" osfamily="windows">
             <arg line="/I ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
         </exec>
-        <exec dir="${basedir}" executable="wine" osfamily="unix">
+        <exec dir="${basedir}" executable="wine" os="linux">
             <arg line="${basedir}/lib/winrun4j/RCEDIT.exe /I ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
         </exec>
         <copy file="bin/nodeagentservice64.exe" tofile="${dir.build}/setup/winrun4j/nodeagentservice64-${portSetPrefix}x.exe" />
         <exec executable="${basedir}/lib/winrun4j/RCEDIT64.exe" osfamily="windows">
             <arg line="/I ${dir.build}/setup/winrun4j/nodeagentservice64-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
         </exec>
-        <exec dir="${basedir}" executable="wine" osfamily="unix">
+        <exec dir="${basedir}" executable="wine" os="linux">
             <arg line="${basedir}/lib/winrun4j/RCEDIT64.exe /I ${dir.build}/setup/winrun4j/nodeagentservice64-${portSetPrefix}x.exe ${dir.src}/main/resources/images/infinity.ico" />
         </exec>
         <!--
         <exec executable="${basedir}/lib/winrun4j/RCEDIT.exe" osfamily="windows">
             <arg line="/N ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.ini" />
         </exec>
-        <exec dir="${basedir}" executable="wine" osfamily="unix">
+        <exec dir="${basedir}" executable="wine" os="linux">
             <arg line="${basedir}/lib/winrun4j/RCEDIT.exe /N ${dir.build}/setup/winrun4j/nodeagentservice-${portSetPrefix}x.exe ${dir.build}/setup/winrun4j/nodeagent-${portSetPrefix}x.ini" />
         </exec>
         -->
@@ -893,13 +895,13 @@
         <exec executable="${basedir}/tools/innosetup/iscc.exe" osfamily="windows">
             <arg line="${dir.build}/nodeagent-base.iss" />
         </exec>
-        <exec dir="${basedir}" executable="wine" osfamily="unix">
+        <exec dir="${basedir}" executable="wine" os="linux">
             <arg line="${basedir}/tools/innosetup/ISCC.exe &quot;${dir.build}/nodeagent-base.iss&quot;" />
             <!--
             <arg line="${basedir}/tools/innosetup/Compil32.exe /CC &quot;${dir.build}/nodeagent-base.iss&quot;" />
             -->
         </exec>
-    	<copy file="${dir.deploy}/${installer.app.id}-${kernel.buildVersion}.exe" tofile="${dir.dist}/infinity-nodeagent.exe" overwrite="true" preservelastmodified="true" />
+    	<copy file="${dir.deploy}/${installer.app.id}-${kernel.buildVersion}.exe" tofile="${dir.dist}/infinity-nodeagent.exe" overwrite="true" preservelastmodified="true" failonerror="false" />
         <!--
         <delete dir="${dir.jvm}" failonerror="false" />
         <delete dir="${dir.nodeagentzip}" failonerror="false" />

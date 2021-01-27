@@ -168,6 +168,7 @@
                 <include name="**/infinity/**/*" />
                 <include name="org/apache/**/*" />
                 <include name="com/googlecode/**/*" />
+                <include name="tw/com/iisi/**/*" />
                 <exclude name="**/*Test.class" />
                 <exclude name="**/Test*.class" />
                 <exclude name="**/*.jpage" />

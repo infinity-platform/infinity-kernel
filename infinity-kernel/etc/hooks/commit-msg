@@ -25,28 +25,34 @@
 ####
 ####
 ####
-if [ "$INFINITY_DEV_HOME" == '' ]; then
-	echo "ERROR: You must run 'setenv' to enable Infinity Developer Environment Settings before committing anything!" 
+if [ "$ALPG_HOME" == '' ]; then
+	echo "ERROR: You must run 'setenv' to enable Alprogrammer development environment settings before committing anything!" 
 	exit 4
 fi
-if [ -x $INFINITY_DEV_HOME/bin/git-commit-checker ] && [[ ! "$0" =~ ^.*git-commit-checker$ ]]; then
-	SRCSHA=`shasum $INFINITY_DEV_HOME/bin/git-commit-checker|awk '{print $1}'`
+if [ -x $ALPG_BIN/git-commit-checker ] && [[ ! "$0" =~ ^.*git-commit-checker$ ]]; then
+	SRCSHA=`shasum $ALPG_BIN/git-commit-checker|awk '{print $1}'`
 	TARSHA=`shasum $0|awk '{print $1}'`
 	if [ "$SRCSHA" != "$TARSHA" ]; then
-		cp -pf $INFINITY_DEV_HOME/bin/git-commit-checker $0
+		cp -pf $ALPG_BIN/git-commit-checker $0
 		echo "INFO: Commit hook updated."
 	fi
-	exec $INFINITY_DEV_HOME/bin/git-commit-checker $*
+	exec $ALPG_BIN/git-commit-checker $*
 else
 	####
 	#### Retrive Redmine Ticket# from commit messaage
 	####
 	MESSAGE=`cat $1`
-	if [[ $MESSAGE =~ ^\[refs[[:space:]]#([0-9]+)(\.[0-9][0-9][0-9])?\](\[.+\])*[[:space:]][^-] ]]; then
+	if [[ $MESSAGE =~ ^\Merge[[:space:]]remote-tracking[[:space:]]branch ]]; then
+		exit 0
+	fi
+	if [[ $MESSAGE =~ ^\Merge[[:space:]]branch ]]; then
+                exit 0
+        fi
+	if [[ $MESSAGE =~ ^\[refs[[:space:]]#([0-9]+)(.[0-9][0-9][0-9])?\](\[[^\]\[]+\])*[[:space:]][^-].* ]]; then
 		TICKET_NO=${BASH_REMATCH[1]}
 		echo "Checking ticket #$TICKET_NO status..."
 	else
-		echo "ERROR: Commit message doesn't comply with the rule: '[refs #ISSUE_NUMBER(.REDO_NUMBER)][TAG1][TAG2]... MESSAGE THAT DOES NOT HAVE LEADING MINUS(-)'"
+		echo "Commit message doesn't comply with the rule: '[refs #ISSUE_NUMBER(.REDO_COUNTER)][TAG1][TAG2]... MESSAGE THAT DOES NOT HAVE LEADING MINUS(-)'"
 		exit 1
 	fi
 	####
@@ -54,28 +60,21 @@ else
 	####
 	CHECKCOMMITSTATUS=`which checkcommitstatus 2> /dev/null`
 	if [ "$CHECKCOMMITSTATUS" == '' ]; then
-        PSQL=`which psql 2> /dev/null`
-        if [ "$PSQL" == '' ]; then
-            echo "ERROR: Cannot find the neither 'checkcommitstatus' nor 'psql' in PATH!"
-            exit 2
-        fi
+        echo "Cannot find the neither 'checkcommitstatus' nor 'psql' in PATH!"
+        exit 2
 	fi
 	####
 	#### Searching ticket
 	####
     if [ "$CHECKCOMMITSTATUS" != '' ]; then
-        TICKET_SUBJECT=`checkcommitstatus $TICKET_NO`
-        if [ "$TICKET_SUBJECT" == '' ]; then
-            TICKET_SUBJECT=`checkcommitstatus $TICKET_NO pg://redmine:redmine@alphalab.cechire.com:5432/redmine2`
-        fi
-    elif [ "$PSQL" != '' ]; then
-        TICKET_SUBJECT=`PGPASSWORD='mnmadmin' psql -h alphalab.cechire.com -U mnmadmin -w -d redmine -q -t -c "select i.subject from issues i left join projects p on p.id=i.project_id left join issue_statuses s on i.status_id=s.id where s.name='ASSIGNED' and i.id=$TICKET_NO order by i.id"`
-    fi
-	if [ "$TICKET_SUBJECT" == '' ]; then
-		echo "ERROR: no matched ticket #$TICKET_NO with status 'ASSIGNED' could be found!"
-		exit 3
-	else
-		echo "Commiting changes to ticket #$TICKET_NO:$TICKET_SUBJECT"
+        checkcommitstatus $TICKET_NO
+        CHECK_RESUT=$?
+		if [ "$CHECK_RESUT" != '0' ]; then
+			echo "No matched ticket #$TICKET_NO with status 'ASSIGNED' could be found!"
+			exit 3
+		else
+			echo "Committing changes to ticket #$TICKET_NO"
+		fi
 	fi
 	####
 	####

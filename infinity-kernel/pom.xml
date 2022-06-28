@@ -3,7 +3,7 @@
 
     <groupId>com.iisigroup.infinity</groupId>
     <artifactId>infinity-kernel</artifactId>
-    <version>8.1.0.1720</version>
+    <version>8.1.0.2242</version>
     <packaging>jar</packaging>
 
     <name>infinity-kernel</name>
@@ -268,24 +268,24 @@
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
-            <artifactId>log4j-core-2.12.0.jar</artifactId>
-            <version>log4j-core-2.12.0.jar</version>
+            <artifactId>log4j-core-2.17.2.jar</artifactId>
+            <version>log4j-core-2.17.2.jar</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/log4j2/log4j-core-2.12.0.jar</systemPath>
+            <systemPath>${project.basedir}/lib/log4j2/log4j-core-2.17.2.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
-            <artifactId>log4j-api-2.12.0.jar</artifactId>
-            <version>log4j-api-2.12.0.jar</version>
+            <artifactId>log4j-api-2.17.2.jar</artifactId>
+            <version>log4j-api-2.17.2.jar</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/log4j2/log4j-api-2.12.0.jar</systemPath>
+            <systemPath>${project.basedir}/lib/log4j2/log4j-api-2.17.2.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
-            <artifactId>log4j-slf4j-impl-2.12.0.jar</artifactId>
-            <version>log4j-slf4j-impl-2.12.0.jar</version>
+            <artifactId>log4j-slf4j-impl-2.17.2.jar</artifactId>
+            <version>log4j-slf4j-impl-2.17.2.jar</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/log4j2/log4j-slf4j-impl-2.12.0.jar</systemPath>
+            <systemPath>${project.basedir}/lib/log4j2/log4j-slf4j-impl-2.17.2.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>mx4j</groupId>
@@ -303,10 +303,10 @@
         </dependency>
         <dependency>
             <groupId>slf4j</groupId>
-            <artifactId>slf4j-api-1.7.26.jar</artifactId>
-            <version>slf4j-api-1.7.26.jar</version>
+            <artifactId>slf4j-api-1.7.36.jar</artifactId>
+            <version>slf4j-api-1.7.36.jar</version>
             <scope>system</scope>
-            <systemPath>${project.basedir}/lib/slf4j/slf4j-api-1.7.26.jar</systemPath>
+            <systemPath>${project.basedir}/lib/slf4j/slf4j-api-1.7.36.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>spring</groupId>
@@ -509,8 +509,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>

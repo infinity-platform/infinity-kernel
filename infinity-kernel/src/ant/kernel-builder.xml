@@ -924,11 +924,25 @@
     	<antcall target="deployNodeAgentZipToRuntime" />
     </target>
 	
+	<target name="copyInfinityNodeAgentZipToBase" unless="infinity-nodeagent.zip.matched">
+		<copy file="${dir.dist}/infinity-nodeagent.zip" tofile="${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-nodeagent.zip" failonerror="false" overwrite="true" />
+	</target>
+	
 	<target name="deployNodeAgentZipToRuntime" if="RUNTIME_BASE_DEFINED">
 		<echo message="Deploying infinity-nodeagent.zip to following places:" />
 		<echo message="  » ${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-nodeagent.zip" />
 		<echo message="  » ${env.INFINITY_KERNEL_BASE}/../runtime/* (extracted)" />
-		<copy file="${dir.dist}/infinity-nodeagent.zip" tofile="${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-nodeagent.zip" failonerror="false" overwrite="true" />
+		<!-- Make sure copying to INFINITY_KERNEL_BASE only if two files are different. (BEGIN) -->
+    	<checksum file="${dir.dist}/infinity-nodeagent.zip" property="infinity-nodeagent-dist.zip.md5"/>
+    	<checksum file="${env.INFINITY_KERNEL_BASE}/infinity-kernel/dist/infinity-nodeagent.zip" property="infinity-nodeagent-base.zip.md5"/>
+    	<condition property="infinity-nodeagent.zip.matched">
+    		<equals arg1="${infinity-nodeagent-base.zip.md5}" arg2="${infinity-nodeagent-dist.zip.md5}"/>
+    	</condition>
+    	<echo message="infinity-nodeagent-dist.zip.md5 = ${infinity-nodeagent-dist.zip.md5}" />
+    	<echo message="infinity-nodeagent-deploy.zip.md5 = ${infinity-nodeagent-base.zip.md5}" />
+    	<echo message="infinity-nodeagent.zip.matched = ${infinity-nodeagent.zip.matched}" />
+    	<antcall target="copyInfinityNodeAgentZipToBase" />
+		<!-- Make sure copying to INFINITY_KERNEL_BASE only if two files are different. (END) -->
 		<delete dir="${env.INFINITY_KERNEL_BASE}/../runtime" failonerror="false" />
 		<mkdir dir="${env.INFINITY_KERNEL_BASE}/../runtime" />
 		<unzip src="${dir.dist}/infinity-nodeagent.zip" dest="${env.INFINITY_KERNEL_BASE}/../runtime" overwrite="true" />

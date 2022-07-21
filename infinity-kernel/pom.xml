@@ -3,7 +3,7 @@
 
     <groupId>com.iisigroup.infinity</groupId>
     <artifactId>infinity-kernel</artifactId>
-    <version>8.1.0.2265</version>
+    <version>8.2.0.2265</version>
     <packaging>jar</packaging>
 
     <name>infinity-kernel</name>
